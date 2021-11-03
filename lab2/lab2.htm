@@ -1,0 +1,106 @@
+<html><head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8"></head><body><h2>The GNU Debugger GDB</h2>
+
+<em>You can read about <b>gdb</b> in Section 6.5 (on page 212) in the book.</em>
+
+<ol>
+<li>Create a struct <b>simplex_t</b> according to page 718 but with proper C syntax.
+<br><br>
+
+</li><li>In this lab you should implement the following functions from Appendix B.
+<ul>
+<li><b>simplex</b>
+</li><li><b>xsimplex</b>
+</li><li><b>pivot</b>
+</li><li><b>initial</b> and assume <b>b ≥ 0</b> so skip the call to <b>prepare</b> and the rest of <b>initial</b>
+</li><li><b>init</b>
+</li><li><b>select_nonbasic</b>
+</li></ul>
+<br><br>
+</li><li>It is expected that your will encounter various problems and to fix them you should use a combination of
+debugging with printing output and the GNU debugger <b>gdb</b>. Both are equally important to be familiar with. 
+<br><br>
+</li><li>When you have implemented these, your program should be able to solve the example input from Lab 1 (and Appendix B).
+The optimal value should be <b>16</b>. 
+<br><br>
+</li><li>To use <b>gdb</b> your program should be compiled with the <b>-g</b> option.
+<br><br>
+</li><li>If your program crashes, start the debugger:
+<pre>gdb a.out
+</pre>
+and type
+<pre>run &lt; i
+</pre>
+or just
+<pre>r &lt; i
+</pre>
+which will start the program with input from the file <b>i</b>.
+<br><br>
+You should now see where in the source code the program crashed.
+<br><br>
+</li><li>To print out the value of a variable, say <b>x</b>, type
+<pre>print x
+</pre>
+<br>
+</li><li>Use commands such as:
+<pre>break xsimplex
+break 100
+</pre>
+to set a so called breakpoint at the beginning of function or certain line number.
+<br><br>
+
+</li><li>If you run the program again it should stop at the breakpoint.
+<br><br>
+</li><li>Try to find out what the difference is between the two commands:
+<pre>next
+step
+</pre>
+</li><li>To continue execution, type
+<pre>c
+</pre>
+</li><li>Now call your function which prints your linear program from <b>gdb</b>. If that function is named <b>print</b> and
+your linear program is represented in a struct named <b>s</b>, you can type
+
+<pre>p print(s)
+</pre>
+
+</li><li>You will now learn a very useful trick to find out when a variable changes value.
+Add a global variable <b>int glob; </b> before any function.
+<br><br>
+Then add for instance <b>glob += 1</b> to any function.
+<br><br>
+Recompile, start <b>gdb</b> and type
+<pre>watch glob
+</pre>
+Run your program. It should stop when <b>glob</b> is modified.
+<br><br>
+It is easy to use watch for global variables but to stop when data allocated with <b>malloc</b> or <b>calloc</b>
+is modified, you need to know the address of that data.
+<br><br>
+Put a breakpoint in <b>pivot</b>
+<br><br>
+Assuming you have a struct <b>s</b> with the array <b>b</b>, type
+<pre>p &amp;s.b[1]
+</pre>
+That should give you the address of element one of the <b>b</b> array.
+<br><br>
+The address will be a hexadecimal number (base 16). Assume it is <b>1234567890abc0</b> and the
+type of the element is <b>double</b>.
+<br><br>
+Now type
+<pre>watch *(double*)0x1234567890abc0
+</pre>
+Continue the program and see what happens.
+<br><br>
+</li><li>Find out what the following commands mean
+<ul>
+<li><b>up</b>
+</li><li><b>down</b>
+</li><li><b>display</b>
+</li></ul>
+</li></ol>
+<em>
+<br><br>
+Wed Nov 18 17:37:58 CET 2020
+</em>
+</body></html>
