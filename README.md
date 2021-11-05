@@ -1,5 +1,5 @@
-# efficient-c
-
+# Efficient C 
+Course site is [here](https://cs.lth.se/edag01/)
 ## Labbar
 
 | Labb | Status              | Godkänd      |
