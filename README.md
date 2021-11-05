@@ -2,11 +2,11 @@
 
 ## Labbar
 
-| Labb | Status              |
-|------|---------------------|
-| 1    | Klar, ska redovisas |
-| 2    | Opåbörjad           |
-| 3    | Opåbörjad           |
-| 4    | Opåbörjad           |
-| 5    | Opåbörjad           |
-| 6    | Opåbörjad           |
+| Labb | Status              | Godkänd      |
+|------|---------------------|--------------|
+| 1    | Klar, ska redovisas | Ej redovisad |           
+| 2    | Opåbörjad           | Ej redovisad |
+| 3    | Opåbörjad           | Ej redovisad |
+| 4    | Opåbörjad           | Ej redovisad |
+| 5    | Opåbörjad           | Ej redovisad |
+| 6    | Opåbörjad           | Ej redovisad |
