@@ -1,5 +1,7 @@
 # Efficient C 
-Course site is [here](https://cs.lth.se/edag01/)
+The course site is [here](https://cs.lth.se/edag01/).
+
+The course tresorit is [here](https://web.tresorit.com/l/NRNW0#kPzc5_cvrnVgTEE95PqnoQ).
 ## Labbar
 
 | Labb | Status              | Godkänd      |
