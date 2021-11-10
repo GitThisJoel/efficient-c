@@ -37,82 +37,80 @@ int calc_line(int line_nbr) {
 			}
 		}
 
-		if (c == EOF) { // Will this terminate at EOF?
+		if (feof(stdin)) {
 			return -1;
 		} else if (c == '\n'){
 			if (on_stack == 1)
-				printf("Line %d: %d\n", line_nbr, stack[on_stack-1]);
+				printf("line %d: %d\n", line_nbr, stack[on_stack-1]);
 			else
-				printf("Line %d: error at \\n\n", line_nbr);
+				printf("line %d: error at \\n\n", line_nbr);
 			return 1;
 		} else {
 			switch (c) {
-				case '+':
-					if (on_stack>=2) {
-						stack[on_stack-2] = stack[on_stack-2]+stack[on_stack-1];
-						on_stack--;
-					} else {
-						printf("line %d: error at %c\n", line_nbr, c);
-						read_to_end(c);
-						return 1;
-					}
-					break;
-				case '-':
-					if (on_stack>=2) {
-						stack[on_stack-2] = stack[on_stack-2]-stack[on_stack-1];
-						on_stack--;
-					} else {
-						printf("line %d: error at %c\n", line_nbr, c);
-						read_to_end(c);
-						return 1;
-					}
-					break;
-				case '*':
-					if (on_stack>=2) {
-						stack[on_stack-2] = stack[on_stack-2]*stack[on_stack-1];
-						on_stack--;
-					} else {
-						printf("line %d: error at %c\n", line_nbr, c);
-						read_to_end(c);
-						return 1;
-					}
-					break;
-				case '/':
-					if (on_stack>=2) {
-						if (stack[on_stack-1] != 0) {
-							stack[on_stack-2] = stack[on_stack-2]/stack[on_stack-1];
-							on_stack--;
-						} else {
-							printf("line %d: error at %c\n", line_nbr, c);
-							read_to_end(c);
-							return 1;
-						}
-					} else {
-						printf("line %d: error at %c\n", line_nbr, c);
-						read_to_end(c);
-						return 1;
-					}
-					break;
-				case ' ':
-					break;
-				default:
+			case '+':
+				if (on_stack>=2) {
+					stack[on_stack-2] = stack[on_stack-2]+stack[on_stack-1];
+					on_stack--;
+				} else {
 					printf("line %d: error at %c\n", line_nbr, c);
 					read_to_end(c);
 					return 1;
+				}
+				break;
+			case '-':
+				if (on_stack>=2) {
+					stack[on_stack-2] = stack[on_stack-2]-stack[on_stack-1];
+					on_stack--;
+				} else {
+					printf("line %d: error at %c\n", line_nbr, c);
+					read_to_end(c);
+					return 1;
+				}
+				break;
+			case '*':
+				if (on_stack>=2) {
+					stack[on_stack-2] = stack[on_stack-2]*stack[on_stack-1];
+					on_stack--;
+				} else {
+					printf("line %d: error at %c\n", line_nbr, c);
+					read_to_end(c);
+					return 1;
+				}
+				break;
+			case '/':
+				if (on_stack>=2) {
+					if (stack[on_stack-1] != 0) {
+						stack[on_stack-2] = stack[on_stack-2]/stack[on_stack-1];
+						on_stack--;
+					} else {
+						printf("line %d: error at %c\n", line_nbr, c);
+						read_to_end(c);
+						return 1;
+					}
+				} else {
+					printf("line %d: error at %c\n", line_nbr, c);
+					read_to_end(c);
+					return 1;
+				}
+				break;
+			case ' ':
+				break;
+			default:
+				printf("line %d: error at %c\n", line_nbr, c);
+				read_to_end(c);
+				return 1;
 			}
 		}
 	//for(int i = 0; i < on_stack; i++)
       	//	printf(" %d", stack[i]);
 	//printf("\n");
 	}
-
-
 }
 
 int main(void)
 {
 	int line_nbr = 1;
-	while(calc_line(line_nbr)>0)
+	while(calc_line(line_nbr) > 0)
 		line_nbr++;
 	return 0;
 }
