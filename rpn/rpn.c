@@ -12,7 +12,6 @@ int stack[N];
 int calc_line(int line_nbr) {
 	int on_stack = 0;
 	char c;
-	char prev_c;
 	int n;
 	while(1) {
 
@@ -102,7 +101,6 @@ int calc_line(int line_nbr) {
 					return 1;
 			}
 		}
-		prev_c = c;
 	//for(int i = 0; i < on_stack; i++)
       	//	printf(" %d", stack[i]);
 	//printf("\n");
