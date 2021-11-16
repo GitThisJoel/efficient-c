@@ -14,6 +14,10 @@ main: $(OBJS)
 	rm -f score
 	./a.out -t 4
 
+test_intopt:
+	gcc $(CFLAGS) test_main.c intopt.c -o test.out
+	./test.out < i
+
 clean:
 	rm -f *.o a.out
 

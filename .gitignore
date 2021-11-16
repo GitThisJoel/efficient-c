@@ -4,6 +4,7 @@ lab1/hello
 lab1/intopt
 lab1/p
 intopt/test
+intopt/score
 
 # Prerequisites
 *.d

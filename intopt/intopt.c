@@ -2,8 +2,11 @@
 #include <stdlib.h>
 #include <math.h>
 
-#define EPSILON 10e-6
+#define EPSILON 1e-6
 
+void _break(void){
+	printf("breakeded\n");
+};
 
 struct simplex_t {
 	int      m;   /* Constraints. */
@@ -11,8 +14,8 @@ struct simplex_t {
 	int     *var; /* 0..n - 1 are non basic. */
 	double **a;   /* A. */
 	double  *b;   /* B. */
-	double  *x;   /* x. */
 	double  *c;   /* c. */
+	double  *x;   /* x. */
 	double   y;   /* y. */
 };
 
@@ -35,49 +38,6 @@ simplex_t *make_simplex_t(int m, int n) {
 	return r;
 }
 
-double** make_matrix(int m, int n) {
-	double** a;
-	a = calloc(m, sizeof(double*)); // obs '*'
-	// a = calloc(m, sizeof(double*)-5);
-	for (int i = 0; i < m; i++)
-		a[i] = calloc(n, sizeof(double));
-
-	return a;
-}
-
-void print_max(double* c, int n) {
-  printf("max z = %10.3lfx_0", c[0]);
-  for (int i = 1; i < n; i++)
-    printf(" + %10.3lfx_%d", c[i], i);
-  printf("\n");
-}
-
-void print_constaints(double** a, double* b, int m, int n) {
-  for (int i = 0; i < m; i++) {
-    printf("%10.3lfx_0", a[i][0]);
-    for (int j = 1; j < n; j++) {
-      printf(" + %10.3lfx_%d", a[i][j], j);
-    }
-    printf(" \u2264 %10.3lf\n", b[i]);
-  }
-}
-
-void print_matrix(double** a, int m, int n){
-  for (int i = 0; i < m; i++) {
-    for (int j = 0; j < n; j++) {
-      printf("max z = %10.3lf ", a[i][j]);
-    }
-    printf("\n");
-  }
-}
-
-void free_matrix(double** a, int m) {
-  for (int i = 0; i < m; i++){
-    free(a[i]);
-  }
-  free(a);
-}
-
 int select_nonbasic(simplex_t *s) {
 	int i;
 	for (i = 0; i < s->n; i++) {
@@ -91,6 +51,17 @@ int select_nonbasic(simplex_t *s) {
 int init(simplex_t *s, int m, int n, double **a, double *b, double *c, double *x, double y, int *var) {
 	int i, k;
 	*s = (simplex_t){ m, n, var, a, b, c, x, y };
+
+	/*
+	s->m = m;
+	s->n = n;
+	s->var = var;
+	s->a = a;
+	s->b = b;
+	s->c = c;
+	s->x = x;
+	s->y = y;
+	*/
 
 	if (s->var == NULL) {
 		s->var = calloc(m + n + 1, sizeof(int));
@@ -167,59 +138,16 @@ void prepare(simplex_t *s, int k) {
 	pivot(s, k, n - 1);
 }
 
-double xsimplex(int m, int n, double **a, double *b, double *c, double *x, double y, int *var, int h) {
-	simplex_t s;
-	int i, row, col;
-
-	if (!init(&s, m, n, a, b, c, x, y, var)) {
-		free(s.var);
-		return NAN;
-	}
-	while ((col = select_nonbasic(&s)) >= 0) {
-		row = -1;
-		for (i = 0; i < m; i++) {
-			if (a[i][col] > EPSILON && (row < 0 || b[i] / a[i][col] < b[row] / a[row][col])) {
-				row = i;
-			}
-		}
-		if (row < 0) {
-			free(s.var);
-			return INFINITY;
-		}
-		pivot(&s, row, col);
-	}
-	if (h == 0) {
-		for (i = 0; i < n; i++) {
-			if (s.var[i] < n) {
-				x[s.var[i]] = 0;
-			}
-		}
-		for (i = 0; i < m; i++) {
-			if (s.var[n + i] < n) {
-				x[s.var[n + i]] = s.b[i];
-			}
-		}
-		free(s.var);
-	} else {
-		for (i = 0; i < n; i++) {
-			x[i] = 0;
-		}
-		for (i = 0; i < n + m; i++) {
-			x[i] = s.b[i - n];
-		}
-	}
-
-	return s.y;
-}
-
 int initial(simplex_t *s, int m, int n, double **a, double *b, double *c, double *x, double y, int *var) {
 	int i, j, k;
 	double w;
 
 	k = init(s, m, n, a, b, c, x, y, var);
 
-	if (b[k] > 0)
+	if (b[k] >= 0)
 		return 1;
+	exit(1);
+	/*
 	prepare(s, k);
 	n = s->n;
 	s->y = xsimplex(m, n, s->a, s->b, s->c, s->x, 0, s->var, 1);
@@ -289,9 +217,60 @@ int initial(simplex_t *s, int m, int n, double **a, double *b, double *c, double
 		free(x);
 		return 1;
 	}
+	*/
 }
 
-int intopt(int m, int n, double **a, double *b, double *c, double *x, double y)
+double xsimplex(int m, int n, double **a, double *b, double *c, double *x, double y, int *var, int h) {
+	simplex_t *s;
+	int i, row, col;
+	s = malloc(sizeof(simplex_t));
+
+	if (!initial(s, m, n, a, b, c, x, y, var)) {
+		free(s->var);
+		return NAN;
+	}
+	printf("c is now %p and s->c is now %p\n", c, s->c);
+	while ((col = select_nonbasic(s)) >= 0) {
+		row = -1;
+		for (i = 0; i < m; i++) {
+			if (a[i][col] > EPSILON && (row < 0 || b[i] / a[i][col] < b[row] / a[row][col])) {
+				row = i;
+			}
+		}
+		if (row < 0) {
+			free(s->var);
+			return INFINITY;
+		}
+		pivot(s, row, col);
+	}
+
+	if (h == 0) {
+		for (i = 0; i < n; i++) {
+			if (s->var[i] < n) {
+				x[s->var[i]] = 0;
+			}
+		}
+		for (i = 0; i < m; i++) {
+			if (s->var[n + i] < n) {
+				printf("i = %d, var[n+i] = %d, b[i] = %lf\n", i, s->var[n+i], s->b[i]);
+				x[s->var[n + i]] = s->b[i];
+			}
+		}
+		free(s->var);
+	} else {
+		for (i = 0; i < n; i++) {
+			x[i] = 0;
+		}
+		for (i = 0; i < n + m; i++) {
+			x[i] = s->b[i - n];
+		}
+	}
+
+	return s->y;
+}
+
+
+int simplex(int m, int n, double **a, double *b, double *c, double *x, double y)
 {
   //scanf("%d %d\n", &m, &n);
 
@@ -313,6 +292,9 @@ int intopt(int m, int n, double **a, double *b, double *c, double *x, double y)
 
   //printf("r = %lf", r);
 
+	return xsimplex(m, n, a, b, c, x, y, NULL, 0);
+}
 
-  return xsimplex(m, n, a, b, c, x, y, NULL, 0);
+int intopt(int m, int n, double** a, double* b, double* c, double* x) {
+	return simplex(m, n, a, b, c, x, 0);
 }
