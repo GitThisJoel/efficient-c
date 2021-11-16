@@ -17,5 +17,5 @@ The course tresorit is [here](https://web.tresorit.com/l/NRNW0#kPzc5_cvrnVgTEE95
 | Assignment | Joel          | Axel         |
 |------------|---------------|--------------|
 | rpn        | 797           | 1100+        |
-| poly       | Opåbörjad     | Opåbörjad    |
 | word       | wip           | 399          |
+| poly       | Opåbörjad     | Opåbörjad    |
