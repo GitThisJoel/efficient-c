@@ -7,7 +7,9 @@ intopt/test
 intopt/score
 
 # Assignments
-joel/
+joel/rpn/
+joel/poly/
+joel/word/
 
 # Prerequisites
 *.d
