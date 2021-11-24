@@ -1,22 +1,38 @@
 CC	= cc
 
 # put the one you prefer last
-CFLAGS	= -g -O3 -std=c18 -pedantic -Werror -mcpu=power8 -pthread
 CFLAGS	= -g -O3 -std=c18 -pedantic -Werror
 CFLAGS	= -g
+CFLAGS	= -g -O3 -std=c18 -pedantic -Werror -mcpu=power8 -pthread
+
+SANFLAGS = -g -fno-common -fsanitize=address
 
 LDFLAGS	= -g -pthread -lm
 
 OBJS	= intopt.o main.o error.o
 
-main: $(OBJS)
+
+main: compile
+	./a.out -t 4
+
+compile: $(OBJS)
 	$(CC) $(OBJS) $(LDFLAGS)
 	rm -f score
-	./a.out -t 4
 
 test_intopt:
 	gcc $(CFLAGS) test_main.c intopt.c -o test.out
 	./test.out < i
+
+valgrind: compile
+	valgrind --leak-check=full --show-reachable=yes ./a.out < i
+
+valgrind_simple: compile
+	valgrind ./a.out < i
+
+sanitizer: $(OBJS)
+	$(CC) $(OBJS) $(SANFLAGS) $(LDFLAGS)
+	rm -f score
+	./a.out -t 4
 
 clean:
 	rm -f *.o a.out
