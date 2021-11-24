@@ -1,9 +1,9 @@
 CC	= cc
 
 # put the one you prefer last
+CFLAGS	= -g -O3 -std=c18 -pedantic -Werror -mcpu=power8 -pthread
 CFLAGS	= -g -O3 -std=c18 -pedantic -Werror
 CFLAGS	= -g
-CFLAGS	= -g -O3 -std=c18 -pedantic -Werror -mcpu=power8 -pthread
 
 SANFLAGS = -g -fno-common -fsanitize=address
 

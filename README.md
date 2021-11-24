@@ -8,7 +8,7 @@ The course tresorit is [here](https://web.tresorit.com/l/NRNW0#kPzc5_cvrnVgTEE95
 |------|---------------------|--------------|
 | 1    | Klar                | Godkänd      |
 | 2    | Klar                | Ej redovisad |
-| 3    | Opåbörjad           | Ej redovisad |
+| 3    | Klar                | Ej redovisad |
 | 4    | Opåbörjad           | Ej redovisad |
 | 5    | Opåbörjad           | Ej redovisad |
 | 6    | Opåbörjad           | Ej redovisad |
@@ -17,5 +17,5 @@ The course tresorit is [here](https://web.tresorit.com/l/NRNW0#kPzc5_cvrnVgTEE95
 | Assignment | Joel          | Axel         |
 |------------|---------------|--------------|
 | rpn        | 797           | 1100+        |
-| word       | 455           | 399          |
+| word       | 455           | 405          |
 | poly       | Opåbörjad     | Opåbörjad    |
