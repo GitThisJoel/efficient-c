@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
+#include <string.h>
 
 #define EPSILON 1e-6
 
@@ -15,13 +16,177 @@ struct simplex_t {
 	double   y;   /* y. */
 };
 
+struct node_t {
+	int m;        /* Constraints. */
+	int n;        /* Decision variables. */
+	int k;        /* Parent branches on x_k */
+	int h;        /* Branch in x_h */
+	double   xh;  /* x_h */
+	double   ak;  /* Parent a_k. */
+	double   bk;  /* Parent b_k. */
+	double  *min; /* Lower bounds. */
+	double  *max; /* Upper bounds */
+	double **a;   /* A. */
+	double  *b;   /* b. */
+	double  *x;   /* x. */
+	double  *c;   /* c. */
+	double   z;   /* z. */
+};
+
 typedef struct simplex_t simplex_t;
+typedef struct node_t node_t;
 
 double xsimplex(int m, int n, double **a, double *b, double *c, double *x, double y, int *var, int h);
 
 int initial(simplex_t *s, int m, int n, double **a, double *b, double *c, double *x, double y, int *var);
 
 int init(simplex_t *s, int m, int n, double **a, double *b, double *c, double *x, double y, int *var);
+
+node_t *initial_node(int m, int n, double **a, double *b, double *c) {
+	node_t *p = malloc(sizeof(node_t));
+	int i;
+
+	p->a = calloc(m + 1, sizeof(double *));
+	for (i = 0; i < m + 1; i++) {
+		p->a[i] = calloc(n + 1, sizeof(double));
+		memcpy(p->a[i], a[i], sizeof(double) * (n + 1));
+	}
+
+	p->b = calloc(m + 1, sizeof(double));
+	p->c = calloc(n + 1, sizeof(double));
+	p->x = calloc(n + 1, sizeof(double));
+
+	p->min = calloc(n, sizeof(double));
+	p->max = calloc(n, sizeof(double));
+	p->m = m;
+	p->n = n;
+
+	memcpy(p->b, b, sizeof(double) * n);
+	memcpy(p->c, c, sizeof(double) * n);
+
+	for (i = 0; i < n; i++) {
+		p->min[i] = -INFINITY;
+		p->max[i] =  INFINITY;
+	}
+	return p;
+}
+
+node_t *extend(node_t *p, int m, int n, double **a, double *b, double *c, int k,
+	       double ak, double bk) {
+	node_t *q = malloc(sizeof(node_t));
+	int i, j;
+
+	q->k  = k;
+	q->ak = ak;
+	q->bk = bk;
+
+	if (ak > 0 && p->max[k] < INFINITY) {
+		q->m = p->m;
+	} else if (ak < 0 && p->min[k] > 0) {
+		q->m = p->m;
+	} else
+		q->m = p->m + 1;
+
+	q->n = p->n;
+	q->h = -1;
+	q->a = calloc(q->m + 1, sizeof(double *));
+	for (i = 0; i < m + 1; i++) {
+		q->a[i] = calloc(q->n + 1, sizeof(double));
+	}
+	q->b = calloc(q->m + 1, sizeof(double));
+	q->c = calloc(q->n + 1, sizeof(double));
+	q->x = calloc(q->n + 1, sizeof(double));
+	q->min = calloc(n, sizeof(double));
+	q->max = calloc(n, sizeof(double));
+
+	memcpy(q->min, p->min, n);
+	memcpy(q->max, p->max, n);
+	for (i = 0; i < m; i++) {
+		memcpy(q->a[i], a[i], sizeof(double) * (q->n + 1));
+	}
+	memcpy(q->b, b, m);
+	memcpy(q->c, c, n + 1);
+
+	if (ak > 0) {
+		if (q->max[k] == INFINITY || bk < q->max[k]) {
+			q->max[k] = bk;
+		}
+	} else if (q->min[k] == -INFINITY || -bk > q->min[k]){
+		q->min[k] = -bk;
+	}
+	for (i = m, j = 0; j < n; j++) {
+		if (q->min[j] > -INFINITY) {
+			q->a[i][j] = -1;
+			q->b[i] = -q->min[j];
+			i++;
+		}
+		if (q->max[j] < INFINITY) {
+			q->a[i][j] = 1;
+			q->b[i] = q->max[j];
+			i++;
+		}
+	}
+
+	return q;
+}
+
+int is_integer(double *xp) {
+	double x = *xp;
+
+	double r = lround(x);
+
+	if (fabs(r - x) < EPSILON) {
+		*xp = r;
+		return 1;
+	} else
+		return 0;
+}
+
+int integer(node_t *p) {
+	int i;
+	for (i = 0; i < p->n; i++) {
+		return 0;
+	}
+	return 1;
+}
+
+void bound(node_t *p, int h, double *zp, double *x) {
+	if (p->z > *zp) {
+		*zp = p->z;
+		memcpy(x, p->x, sizeof(double) * p->n);
+	}
+}
+
+int isfinite(double x) {
+	if (x == NAN || fabs(x) == INFINITY)
+		return 0;
+	return 1;
+}
+
+int branch(node_t *q, double z) {
+	double min, max;
+	if (q->z < z)
+		return 0;
+	for (int h = 0; h < q->n; h++) {
+		if (!is_integer(&q->x[h])) {
+			if (q->min[h] == -INFINITY)
+				min = 0;
+			else
+				min = q->min[h];
+			max = q->max[h];
+			if(floor(q->x[h]) < min || ceil(q->x[h]) > max)
+				continue;
+			q->h = h;
+			q->xh = q->x[h];
+			free(q->a);
+			free(q->b);
+			free(q->c);
+			free(q->x);
+			return 1;
+		}
+	}
+	return 0;
+}
 
 int select_nonbasic(simplex_t *s) {
 	int i;
