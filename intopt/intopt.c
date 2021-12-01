@@ -36,6 +36,18 @@ struct node_t {
 typedef struct simplex_t simplex_t;
 typedef struct node_t node_t;
 
+void free_node_t(node_t *p) {
+	free(p->min);
+	free(p->max);
+	for(int i = 0; i < m; i++) {
+		free(p->a[i]);
+	}
+	free(p->a);
+	free(p->b);
+	free(p->x);
+	free(p->c);
+}
+
 double xsimplex(int m, int n, double **a, double *b, double *c, double *x, double y, int *var, int h);
 
 int initial(simplex_t *s, int m, int n, double **a, double *b, double *c, double *x, double y, int *var);
@@ -186,6 +198,24 @@ int branch(node_t *q, double z) {
 		}
 	}
 	return 0;
+}
+
+int simplex(int m, int n, double **a, double *b, double *c, double *x, double y);
+
+void succ(node_t *p, int h, int m, int n, double **a, double *b, double *c, int k, double ak, double bk, double *zp, int x) {
+	node_t *q = extend(p, m, n, a, b, c, k, ak, bk);
+	if (q == NULL)
+		return;
+	q->z = simplex(q->m, q->n, q->a, q->b, q->c, q->x, 0);
+	if (isfinite(q->z)) {
+		if (integer(q)) {
+			bound(q, h, zp, x);
+		} else if(branch(q, *zp)) {
+			// add q to h
+			return;
+		}
+	}
+	free(q);
 }
 
 int select_nonbasic(simplex_t *s) {
@@ -406,5 +436,28 @@ int simplex(int m, int n, double **a, double *b, double *c, double *x, double y)
 
 int intopt(int m, int n, double** a, double* b, double* c, double* x)
 {
-	return simplex(m, n, a, b, c, x, 0);
+	node_t *p = initial_node(m, n, a, b, c);
+
+	//set h = {p}
+	double z = -INFINITY; //best integer solution so far
+	p->z = simplex(p->m, p->n, p->a, p->b, p->c, p->x, 0);
+	if (integer(p) || !isfinite(p->z)) {
+		z = p->z;
+		if (integer(p)) {
+			memcpy(x, p->x, n);
+		}
+		free_node_t(p);
+		return z;
+	}
+	branch(p, z);
+	while(/* g != empty */) {
+		/* take p from h */
+		succ(p, h, m, n, a, b, c, p->h, 1, floor(p->xh), &z, x);
+		succ(p, h, m, n, a, b, c, p->h, -1, -ceil(p->xh), &z, x);
+		free_node_t(p);
+	}
+	if (z == -INFINITY) {
+		return NAN;
+	}
+	return z;
 }
