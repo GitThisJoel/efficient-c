@@ -31,6 +31,7 @@ struct node_t {
 	double  *x;   /* x. */
 	double  *c;   /* c. */
 	double   z;   /* z. */
+	struct node_t* next; /* next node in a linked list */
 };
 
 typedef struct simplex_t simplex_t;
@@ -157,7 +158,8 @@ int is_integer(double *xp) {
 int integer(node_t *p) {
 	int i;
 	for (i = 0; i < p->n; i++) {
-		return 0;
+		if(!is_integer(&p->x[i]))
+			return 0;
 	}
 	return 1;
 }
@@ -450,7 +452,7 @@ int intopt(int m, int n, double** a, double* b, double* c, double* x)
 		return z;
 	}
 	branch(p, z);
-	while(/* g != empty */) {
+	while(/* h != empty */) {
 		/* take p from h */
 		succ(p, h, m, n, a, b, c, p->h, 1, floor(p->xh), &z, x);
 		succ(p, h, m, n, a, b, c, p->h, -1, -ceil(p->xh), &z, x);
