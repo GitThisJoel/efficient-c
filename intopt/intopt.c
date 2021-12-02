@@ -37,16 +37,19 @@ struct node_t {
 typedef struct simplex_t simplex_t;
 typedef struct node_t node_t;
 
-void free_node_t(node_t *p) {
+node_t *free_node_t(node_t *p) {
+	node_t *q = p->next;
 	free(p->min);
 	free(p->max);
-	for(int i = 0; i < m; i++) {
+	for(int i = 0; i < p->m; i++) {
 		free(p->a[i]);
 	}
 	free(p->a);
 	free(p->b);
 	free(p->x);
 	free(p->c);
+	free(p);
+	return q;
 }
 
 double xsimplex(int m, int n, double **a, double *b, double *c, double *x, double y, int *var, int h);
@@ -103,7 +106,7 @@ node_t *extend(node_t *p, int m, int n, double **a, double *b, double *c, int k,
 	q->n = p->n;
 	q->h = -1;
 	q->a = calloc(q->m + 1, sizeof(double *));
-	for (i = 0; i < m + 1; i++) {
+	for (i = 0; i < q->m + 1; i++) {
 		q->a[i] = calloc(q->n + 1, sizeof(double));
 	}
 	q->b = calloc(q->m + 1, sizeof(double));
@@ -128,6 +131,8 @@ node_t *extend(node_t *p, int m, int n, double **a, double *b, double *c, int k,
 		q->min[k] = -bk;
 	}
 	for (i = m, j = 0; j < n; j++) {
+		printf("i is %d and j is %d\n", i, j);
+		printf("q.m is %d and q.n is %d\n", q->m, q->n);
 		if (q->min[j] > -INFINITY) {
 			q->a[i][j] = -1;
 			q->b[i] = -q->min[j];
@@ -164,17 +169,22 @@ int integer(node_t *p) {
 	return 1;
 }
 
-void bound(node_t *p, int h, double *zp, double *x) {
+void bound(node_t *p, node_t *h, double *zp, double *x) {
+	node_t *prev;
 	if (p->z > *zp) {
 		*zp = p->z;
 		memcpy(x, p->x, sizeof(double) * p->n);
-	}
-}
+		/* remove and delete all nodes q in h with q.z < p.z */
 
-int isfinite(double x) {
-	if (x == NAN || fabs(x) == INFINITY)
-		return 0;
-	return 1;
+		prev = h;
+		while (h != NULL) {
+			h = h->next;
+			if (h->z < p->z) {
+				prev->next = free_node_t(h);
+			}
+			prev = h;
+		}
+	}
 }
 
 int branch(node_t *q, double z) {
@@ -204,7 +214,7 @@ int branch(node_t *q, double z) {
 
 int simplex(int m, int n, double **a, double *b, double *c, double *x, double y);
 
-void succ(node_t *p, int h, int m, int n, double **a, double *b, double *c, int k, double ak, double bk, double *zp, int x) {
+void succ(node_t *p, node_t *h, int m, int n, double **a, double *b, double *c, int k, double ak, double bk, double *zp, double *x) {
 	node_t *q = extend(p, m, n, a, b, c, k, ak, bk);
 	if (q == NULL)
 		return;
@@ -213,7 +223,10 @@ void succ(node_t *p, int h, int m, int n, double **a, double *b, double *c, int 
 		if (integer(q)) {
 			bound(q, h, zp, x);
 		} else if(branch(q, *zp)) {
-			// add q to h
+			while (h->next != NULL)
+				h = h->next;
+
+			h->next = q;
 			return;
 		}
 	}
@@ -347,7 +360,6 @@ int initial(simplex_t *s, int m, int n, double **a, double *b, double *c, double
 		return 1;
 	prepare(s, k);
 	n = s->n;
-	// (int m, int n, double **a, double *b, double *c, double *x, double y, int *var, int h)
 	s->y = xsimplex(m, n, s->a, s->b, s->c, s->x, 0, s->var, 1);
 	for (i = 0; i < n + m; i++) {
 		if (s->var[i] == m + n - 1) {
@@ -436,11 +448,13 @@ int simplex(int m, int n, double **a, double *b, double *c, double *x, double y)
 	return xsimplex(m, n, a, b, c, x, y, NULL, 0);
 }
 
-int intopt(int m, int n, double** a, double* b, double* c, double* x)
+double intopt(int m, int n, double** a, double* b, double* c, double* x)
 {
 	node_t *p = initial_node(m, n, a, b, c);
 
 	//set h = {p}
+	node_t *h = p;
+
 	double z = -INFINITY; //best integer solution so far
 	p->z = simplex(p->m, p->n, p->a, p->b, p->c, p->x, 0);
 	if (integer(p) || !isfinite(p->z)) {
@@ -452,8 +466,9 @@ int intopt(int m, int n, double** a, double* b, double* c, double* x)
 		return z;
 	}
 	branch(p, z);
-	while(/* h != empty */) {
-		/* take p from h */
+	while (h != NULL) {
+		p = h;
+		h = h->next;
 		succ(p, h, m, n, a, b, c, p->h, 1, floor(p->xh), &z, x);
 		succ(p, h, m, n, a, b, c, p->h, -1, -ceil(p->xh), &z, x);
 		free_node_t(p);
