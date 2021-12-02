@@ -77,8 +77,8 @@ node_t *initial_node(int m, int n, double **a, double *b, double *c) {
 	p->m = m;
 	p->n = n;
 
-	memcpy(p->b, b, sizeof(double) * n);
-	memcpy(p->c, c, sizeof(double) * n);
+	memcpy(p->b, b, sizeof(double) * (m + 1));
+	memcpy(p->c, c, sizeof(double) * (n + 1));
 
 	for (i = 0; i < n; i++) {
 		p->min[i] = -INFINITY;
