@@ -41,6 +41,8 @@ node_t *free_node_t(node_t *p) {
 	node_t *q = p->next;
 	free(p->min);
 	free(p->max);
+
+	// blir a helt free:ad? inte m+1?
 	for(int i = 0; i < p->m; i++) {
 		free(p->a[i]);
 	}
@@ -202,6 +204,9 @@ int branch(node_t *q, double z) {
 				continue;
 			q->h = h;
 			q->xh = q->x[h];
+			for(int i = 0; i < p->m; i++) {
+				free(p->a[i]);
+			}
 			free(q->a);
 			free(q->b);
 			free(q->c);
