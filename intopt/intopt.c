@@ -31,19 +31,72 @@ struct node_t {
 	double  *x;   /* x. */
 	double  *c;   /* c. */
 	double   z;   /* z. */
-	struct node_t* next; /* next node in a linked list */
 };
 
-typedef struct simplex_t simplex_t;
-typedef struct node_t node_t;
+struct set_t {
+	struct list_t *first;
+};
 
-node_t *free_node_t(node_t *p) {
-	node_t *q = p->next;
+struct list_t {
+	struct list_t *next;
+	struct node_t *elem;
+};
+
+typedef struct node_t node_t;
+typedef struct list_t list_t;
+typedef struct set_t set_t;
+typedef struct simplex_t simplex_t;
+
+node_t *set_pop(set_t *set) {
+	list_t *pop = set->first;
+	printf("first before: %p, ", set->first);
+	set->first = pop->next;
+	printf("first after: %p\n", set->first);
+	node_t *p = pop->elem;
+	free(pop);
+
+	return p;
+}
+
+void set_add(set_t *set, node_t *p) {
+	list_t *o = calloc(1, sizeof(list_t));
+	o->elem = p;
+	if (set->first != NULL)
+		o->next = set->first->next;
+	set->first = o;
+}
+
+void free_node_t(node_t *p);
+
+void set_rm_below_z(set_t *set, double z) {
+	list_t *p, *prev, *next;
+	if (set->first == NULL)
+		return;
+	while (set->first->elem->z < z) {
+		p = set->first;
+		set->first = p->next;
+		free_node_t(p->elem);
+		free(p);
+	}
+	prev = set->first;
+	p = prev->next;
+	while (p != NULL) {
+		next = p->next;
+		if (p->elem->z < z) {
+			free_node_t(p->elem);
+			free(p);
+		} else {
+			prev = p;
+		}
+		p = next;
+	}
+}
+
+void free_node_t(node_t *p) {
 	free(p->min);
 	free(p->max);
 
-	// blir a helt free:ad? inte m+1?
-	for(int i = 0; i < p->m; i++) {
+	for(int i = 0; i < p->m + 1; i++) {
 		free(p->a[i]);
 	}
 	free(p->a);
@@ -51,7 +104,6 @@ node_t *free_node_t(node_t *p) {
 	free(p->x);
 	free(p->c);
 	free(p);
-	return q;
 }
 
 double xsimplex(int m, int n, double **a, double *b, double *c, double *x, double y, int *var, int h);
@@ -61,13 +113,15 @@ int initial(simplex_t *s, int m, int n, double **a, double *b, double *c, double
 int init(simplex_t *s, int m, int n, double **a, double *b, double *c, double *x, double y, int *var);
 
 node_t *initial_node(int m, int n, double **a, double *b, double *c) {
-	node_t *p = malloc(sizeof(node_t));
-	int i;
+	node_t *p = calloc(1, sizeof(node_t));
+	int i, j;
 
 	p->a = calloc(m + 1, sizeof(double *));
 	for (i = 0; i < m + 1; i++) {
 		p->a[i] = calloc(n + 1, sizeof(double));
-		memcpy(p->a[i], a[i], sizeof(double) * (n + 1));
+		for(j = 0; j < n + 1; j++) {
+			p->a[i][j] = a[i][j];
+		}
 	}
 
 	p->b = calloc(m + 1, sizeof(double));
@@ -91,8 +145,8 @@ node_t *initial_node(int m, int n, double **a, double *b, double *c) {
 
 node_t *extend(node_t *p, int m, int n, double **a, double *b, double *c, int k,
 	       double ak, double bk) {
-	node_t *q = malloc(sizeof(node_t));
-	int i, j;
+	int i, j, y;
+	node_t *q = calloc(1, sizeof(node_t));
 
 	q->k  = k;
 	q->ak = ak;
@@ -117,13 +171,21 @@ node_t *extend(node_t *p, int m, int n, double **a, double *b, double *c, int k,
 	q->min = calloc(n, sizeof(double));
 	q->max = calloc(n, sizeof(double));
 
-	memcpy(q->min, p->min, n);
-	memcpy(q->max, p->max, n);
-	for (i = 0; i < m; i++) {
-		memcpy(q->a[i], a[i], sizeof(double) * (q->n + 1));
+	for (i = 0; i < p->n; i++) {
+		q->min[i] = p->min[i];
+		q->max[i] = p->max[i];
 	}
-	memcpy(q->b, b, m);
-	memcpy(q->c, c, n + 1);
+
+	for (i = 0; i < m; i += 1) {
+		for (y = 0; y < n; y += 1) {
+			q->a[i][y] = a[i][y];
+		}
+		q->b[i] = b[i];
+	}
+
+	for (i = 0; i < n; i += 1) {
+		q->c[i] = c[i];
+	}
 
 	if (ak > 0) {
 		if (q->max[k] == INFINITY || bk < q->max[k]) {
@@ -133,8 +195,6 @@ node_t *extend(node_t *p, int m, int n, double **a, double *b, double *c, int k,
 		q->min[k] = -bk;
 	}
 	for (i = m, j = 0; j < n; j++) {
-		printf("i is %d and j is %d\n", i, j);
-		printf("q.m is %d and q.n is %d\n", q->m, q->n);
 		if (q->min[j] > -INFINITY) {
 			q->a[i][j] = -1;
 			q->b[i] = -q->min[j];
@@ -171,21 +231,15 @@ int integer(node_t *p) {
 	return 1;
 }
 
-void bound(node_t *p, node_t *h, double *zp, double *x) {
+void bound(node_t *p, set_t *h, double *zp, double *x) {
 	node_t *prev;
+	if (h == NULL || p == NULL)
+		return;
 	if (p->z > *zp) {
 		*zp = p->z;
 		memcpy(x, p->x, sizeof(double) * p->n);
 		/* remove and delete all nodes q in h with q.z < p.z */
-
-		prev = h;
-		while (h != NULL) {
-			h = h->next;
-			if (h->z < p->z) {
-				prev->next = free_node_t(h);
-			}
-			prev = h;
-		}
+		set_rm_below_z(h, p->z);
 	}
 }
 
@@ -204,10 +258,9 @@ int branch(node_t *q, double z) {
 				continue;
 			q->h = h;
 			q->xh = q->x[h];
-			for(int i = 0; i < p->m; i++) {
-				free(p->a[i]);
+			for (int i = 0; i < q->m + 1; i++) {
+				free(q->a[i]);
 			}
-			free(q->a);
 			free(q->b);
 			free(q->c);
 			free(q->x);
@@ -219,23 +272,20 @@ int branch(node_t *q, double z) {
 
 int simplex(int m, int n, double **a, double *b, double *c, double *x, double y);
 
-void succ(node_t *p, node_t *h, int m, int n, double **a, double *b, double *c, int k, double ak, double bk, double *zp, double *x) {
+void succ(node_t *p, set_t *h, int m, int n, double **a, double *b, double *c, int k, double ak, double bk, double *zp, double *x) {
 	node_t *q = extend(p, m, n, a, b, c, k, ak, bk);
-	if (q == NULL)
+	if (q == NULL || h == NULL)
 		return;
 	q->z = simplex(q->m, q->n, q->a, q->b, q->c, q->x, 0);
 	if (isfinite(q->z)) {
 		if (integer(q)) {
 			bound(q, h, zp, x);
 		} else if(branch(q, *zp)) {
-			while (h->next != NULL)
-				h = h->next;
-
-			h->next = q;
+			set_add(h, q);
 			return;
 		}
 	}
-	free(q);
+	free_node_t(q);
 }
 
 int select_nonbasic(simplex_t *s) {
@@ -407,18 +457,18 @@ int initial(simplex_t *s, int m, int n, double **a, double *b, double *c, double
 	for (k = 0; k < n; k++) {
 		for (j = 0; j < n; j++) {
 			if (k == s->var[j]) {
-				//x_k is nonbasic, add c_k
+				/* x_k is nonbasic, add c_k */
 				t[j] = t[j] + s->c[k];
 				goto next_k;
 			}
 		}
 		for (j = 0; j < n; j++) {
 			if (s->var[n + j] == k)
-				break; //x_k is at row j
+				break; /* x_k is at row j */
 		}
 		s->y = s->y + s->c[k] * s->b[j];
 		for (i = 0; i < n; i++) {
-			t[i] = t[j] - s->c[k] * s->a[j][i];
+			t[i] = t[i] - s->c[k] * s->a[j][i];
 		}
 		next_k:;
 	}
@@ -458,7 +508,9 @@ double intopt(int m, int n, double** a, double* b, double* c, double* x)
 	node_t *p = initial_node(m, n, a, b, c);
 
 	//set h = {p}
-	node_t *h = p;
+	set_t *h = calloc(1, sizeof(set_t));
+	h->first = calloc(1, sizeof(list_t));
+	h->first->elem = p;
 
 	double z = -INFINITY; //best integer solution so far
 	p->z = simplex(p->m, p->n, p->a, p->b, p->c, p->x, 0);
@@ -471,12 +523,12 @@ double intopt(int m, int n, double** a, double* b, double* c, double* x)
 		return z;
 	}
 	branch(p, z);
-	while (h != NULL) {
-		p = h;
-		h = h->next;
+	while(h->first != NULL) {
+		printf("first is %p\n", h->first);
+		printf("p is %p\n", p);
+		p = set_pop(h);
 		succ(p, h, m, n, a, b, c, p->h, 1, floor(p->xh), &z, x);
-		succ(p, h, m, n, a, b, c, p->h, -1, -ceil(p->xh), &z, x);
-		free_node_t(p);
+		succ(p, h, m, n, a, b, c, p->h, -1, -floor(p->xh), &z, x);
 	}
 	if (z == -INFINITY) {
 		return NAN;

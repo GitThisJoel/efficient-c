@@ -13,21 +13,21 @@ OBJS	= intopt.o main.o error.o
 
 
 main: compile
-	./a.out -t 4
+	timeout 10 ./a.out -t 4
 
 compile: $(OBJS)
 	$(CC) $(OBJS) $(LDFLAGS)
 	rm -f score
 
-test_intopt:
-	gcc $(CFLAGS) test_main.c intopt.c -o test.out
+test:
+	gcc $(CFLAGS) test_main.c intopt.c -o test.out $(LDFLAGS)
 	./test.out < i
 
 valgrind: compile
 	valgrind --leak-check=full --show-reachable=yes ./a.out < i
 
-valgrind_simple: compile
-	valgrind ./a.out < i
+test_valgrind: compile
+	timeout 5 valgrind ./a.out < i
 
 sanitizer: $(OBJS)
 	$(CC) $(OBJS) $(SANFLAGS) $(LDFLAGS)
