@@ -19,15 +19,17 @@ compile: $(OBJS)
 	$(CC) $(OBJS) $(LDFLAGS)
 	rm -f score
 
-test:
+test_compile: $(OBJS)
 	gcc $(CFLAGS) test_main.c intopt.c -o test.out $(LDFLAGS)
+
+test: test_compile
 	./test.out < i
 
 valgrind: compile
 	valgrind --leak-check=full --show-reachable=yes ./a.out < i
 
-test_valgrind: compile
-	timeout 5 valgrind ./a.out < i
+test_valgrind: test_compile
+	timeout 10 valgrind ./test.out < i
 
 sanitizer: $(OBJS)
 	$(CC) $(OBJS) $(SANFLAGS) $(LDFLAGS)

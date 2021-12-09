@@ -119,7 +119,9 @@ node_t *initial_node(int m, int n, double **a, double *b, double *c) {
 	p->a = calloc(m + 1, sizeof(double *));
 	for (i = 0; i < m + 1; i++) {
 		p->a[i] = calloc(n + 1, sizeof(double));
-		for(j = 0; j < n + 1; j++) {
+	}
+	for (i = 0; i < m; i++) {
+		for(j = 0; j < n; j++) {
 			p->a[i][j] = a[i][j];
 		}
 	}
@@ -133,8 +135,8 @@ node_t *initial_node(int m, int n, double **a, double *b, double *c) {
 	p->m = m;
 	p->n = n;
 
-	memcpy(p->b, b, sizeof(double) * (m + 1));
-	memcpy(p->c, c, sizeof(double) * (n + 1));
+	memcpy(p->b, b, sizeof(double) * m);
+	memcpy(p->c, c, sizeof(double) * n);
 
 	for (i = 0; i < n; i++) {
 		p->min[i] = -INFINITY;
@@ -232,7 +234,7 @@ int integer(node_t *p) {
 }
 
 void bound(node_t *p, set_t *h, double *zp, double *x) {
-	node_t *prev;
+	printf("bound!\n");
 	if (h == NULL || p == NULL)
 		return;
 	if (p->z > *zp) {
@@ -291,9 +293,8 @@ void succ(node_t *p, set_t *h, int m, int n, double **a, double *b, double *c, i
 int select_nonbasic(simplex_t *s) {
 	int i;
 	for (i = 0; i < s->n; i++) {
-		if (s->c[i] > EPSILON) {
+		if (s->c[i] > EPSILON)
 			return i;
-		}
 	}
 	return -1;
 }
@@ -345,13 +346,17 @@ void prepare(simplex_t *s, int k) {
 	int n = s->n;
 	int i;
 
+	// move all basic variables one steep to the right
 	for (i = n + m; i > n; i--)
 		s->var[i] = s->var[i - 1];
+
+	// add non-basic x_m+n
 	s->var[n] = m + n;
 	n++;
 	for (i = 0; i < m; i++)
 		s->a[i][n - 1] = -1;
 
+	// give new non-basic coefficient -1 in all rows
 	s->x = calloc(m + n, sizeof(double));
 	s->c = calloc(n, sizeof(double));
 	s->c[n - 1] = -1;
@@ -484,7 +489,16 @@ int initial(simplex_t *s, int m, int n, double **a, double *b, double *c, double
 
 int init(simplex_t *s, int m, int n, double **a, double *b, double *c, double *x, double y, int *var) {
 	int i, k;
-	*s = (simplex_t){ m, n, var, a, b, c, x, y };
+	//*s = (simplex_t){ m, n, var, a, b, c, x, y };
+	s->n = n;
+	s->m = m;
+	s->var = var;
+	s->a = a;
+	s->b = b;
+	s->c = c;
+	s->x = x;
+	s->y = y;
+
 
 	if (s->var == NULL) {
 		s->var = calloc(m + n + 1, sizeof(int));
@@ -517,15 +531,13 @@ double intopt(int m, int n, double** a, double* b, double* c, double* x)
 	if (integer(p) || !isfinite(p->z)) {
 		z = p->z;
 		if (integer(p)) {
-			memcpy(x, p->x, n);
+			memcpy(x, p->x, sizeof(double));
 		}
 		free_node_t(p);
 		return z;
 	}
 	branch(p, z);
 	while(h->first != NULL) {
-		printf("first is %p\n", h->first);
-		printf("p is %p\n", p);
 		p = set_pop(h);
 		succ(p, h, m, n, a, b, c, p->h, 1, floor(p->xh), &z, x);
 		succ(p, h, m, n, a, b, c, p->h, -1, -floor(p->xh), &z, x);
