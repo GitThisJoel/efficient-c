@@ -22,6 +22,10 @@ compile: $(OBJS)
 test_compile: $(OBJS)
 	gcc $(CFLAGS) test_main.c intopt.c -o test.out $(LDFLAGS)
 
+test_sanitizer: $(OBJS)
+	gcc $(CFLAGS) test_main.c intopt.c -o test.out $(SANFLAGS) $(LDFLAGS)
+	./test.out < i
+
 test: test_compile
 	./test.out < i
 

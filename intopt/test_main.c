@@ -84,6 +84,8 @@ int main(void)
 
 	printf("We got this: %lf\n", intopt(m, n, a, b, c, x));
 
+	free(x);
+
 	free_matrix(a,m);
 	free(b);
 	free(c);
