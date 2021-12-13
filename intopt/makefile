@@ -2,7 +2,7 @@ CC	= cc
 
 # put the one you prefer last
 CFLAGS	= -g -O3 -std=c18 -pedantic -Werror -mcpu=power8 -pthread
-CFLAGS	= -g -O3 -std=c18 -pedantic -Werror
+CFLAGS	= -g -O3 -std=c18 -pedantic -Werror -Wall
 CFLAGS	= -g
 
 SANFLAGS = -g -fno-common -fsanitize=address
@@ -27,13 +27,13 @@ test_sanitizer: $(OBJS)
 	./test.out < i
 
 test: test_compile
-	./test.out < i
+	./test.out < i4	
 
 valgrind: compile
-	valgrind --leak-check=full --show-reachable=yes ./a.out < i
+	valgrind --leak-check=full --show-reachable=yes ./a.out
 
 test_valgrind: test_compile
-	timeout 10 valgrind ./test.out < i
+	timeout 10 valgrind ./test.out < i5
 
 sanitizer: $(OBJS)
 	$(CC) $(OBJS) $(SANFLAGS) $(LDFLAGS)

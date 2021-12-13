@@ -62,7 +62,7 @@ int main(void)
 	for (int i = 0; i < n; i++)
 		scanf("%lf", &c[i]);
 
-	// matrix
+	// a matrix
 	a = make_matrix(m, n);
 	for (int i = 0; i < m; i++) {
 		for (int j = 0; j < n; j++) {

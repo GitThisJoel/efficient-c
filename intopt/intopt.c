@@ -60,7 +60,7 @@ void set_add(set_t *set, node_t *p) {
 	list_t *o = calloc(1, sizeof(list_t));
 	o->elem = p;
 	if (set->first != NULL)
-		o->next = set->first->next;
+		o->next = set->first;
 	set->first = o;
 }
 
@@ -94,11 +94,8 @@ void free_node_t(node_t *p);
 
 void set_rm_below_z(set_t *set, double z) {
 	list_t *p, *prev, *next;
-	printf("z to remove by is %lf\n", z);
-	printf("set size is %d\n", set_size(set));
 	if (set->first == NULL)
 		return;
-	printf("node z is %lf\n", set->first->elem->z);
 	while (set->first->elem->z < z) {
 		p = set->first;
 		set->first = p->next;
@@ -253,7 +250,6 @@ int is_integer(double *xp) {
 
 int integer(node_t *p) {
 	for (int i = 0; i < p->n; i++) {
-		printf("x[%d] is %lf\n", i, p->x[i]);
 		if(!is_integer(&p->x[i]))
 			return 0;
 	}
@@ -264,7 +260,6 @@ void bound(node_t *p, set_t *h, double *zp, double *x) {
 	if (p == NULL)
 		return;
 	if (p->z > *zp) {
-		printf("p->z is %lf and *zp is %lf!\n", p->z, *zp);
 		*zp = p->z;
 		memcpy(x, p->x, sizeof(double) * p->n);
 		/* remove and delete all nodes q in h with q.z < p.z */
@@ -309,15 +304,11 @@ void succ(node_t *p, set_t *h, int m, int n, double **a, double *b, double *c, i
 
 	q->z = simplex(q->m, q->n, q->a, q->b, q->c, q->x, 0);
 
-	printf("q->z = %lf\n", q->z);
 	if (isfinite(q->z)) {
 		if (integer(q)) {
-			printf("zp is %lf\n", *zp);
 			bound(q, h, zp, x);
 		} else if(branch(q, *zp)) {
-			printf("adding a node, size is %d\n", set_size(h));
 			set_add(h, q);
-			printf("size is now %d\n", set_size(h));
 			return;
 		}
 	}
@@ -575,8 +566,7 @@ double intopt(int m, int n, double** a, double* b, double* c, double* x)
 	while(h->first != NULL) {
 		p = set_pop(h);
 		succ(p, h, m, n, a, b, c, p->h, 1, floor(p->xh), &z, x);
-		succ(p, h, m, n, a, b, c, p->h, -1, -floor(p->xh), &z, x);
-		printf("loool %d\n", set_size(h));
+		succ(p, h, m, n, a, b, c, p->h, -1, -ceil(p->xh), &z, x);
 	}
 	free_set_t(h);
 	if (z == -INFINITY) {
