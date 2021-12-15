@@ -13,7 +13,7 @@ OBJS	= intopt.o main.o error.o
 
 
 main: compile
-	timeout 10 ./a.out -t 4
+	./a.out -t 4
 
 compile: $(OBJS)
 	$(CC) $(OBJS) $(LDFLAGS)
@@ -23,17 +23,17 @@ test_compile: $(OBJS)
 	gcc $(CFLAGS) test_main.c intopt.c -o test.out $(LDFLAGS)
 
 test_hugo_compile: $(OBJS)
-	gcc $(CFLAGS) test_main.c intopt_hugo.c -o test.out $(LDFLAGS)
+	gcc intopt_hugo.c -o test_hugo.out -lm
 
 test_sanitizer: $(OBJS)
-	gcc $(CFLAGS) test_main.c intopt.c -o test.out $(SANFLAGS) $(LDFLAGS)
+	gcc $(CFLAGS) test_main.cintopt.c -o test.out $(SANFLAGS) $(LDFLAGS)
 	./test.out < is/i
 
 test: test_compile
 	./test.out
 
 test_hugo: test_hugo_compile
-	./test.out
+	./test_hugo.out
 
 valgrind: compile
 	valgrind --leak-check=full --show-reachable=yes ./a.out
