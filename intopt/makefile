@@ -22,18 +22,24 @@ compile: $(OBJS)
 test_compile: $(OBJS)
 	gcc $(CFLAGS) test_main.c intopt.c -o test.out $(LDFLAGS)
 
+test_hugo_compile: $(OBJS)
+	gcc $(CFLAGS) test_main.c intopt_hugo.c -o test.out $(LDFLAGS)
+
 test_sanitizer: $(OBJS)
 	gcc $(CFLAGS) test_main.c intopt.c -o test.out $(SANFLAGS) $(LDFLAGS)
 	./test.out < is/i
 
 test: test_compile
-	./test.out < is/i4
+	./test.out
+
+test_hugo: test_hugo_compile
+	./test.out
 
 valgrind: compile
 	valgrind --leak-check=full --show-reachable=yes ./a.out
 
 test_valgrind: test_compile
-	timeout 10 valgrind ./test.out < is/i5
+	timeout 10 valgrind ./test.out < is/i6
 
 sanitizer: $(OBJS)
 	$(CC) $(OBJS) $(SANFLAGS) $(LDFLAGS)

@@ -1,5 +1,5 @@
 /* Test program for EDAG01 Efficient C at Lund University
- * 
+ *
  * See intopt.h, add your implementation in intopt.c, and type make.
  *
  * The input in test will be run until there is a timeout or a failed test.
@@ -62,7 +62,7 @@ static void check(void)
 	double		z_sol;
 	FILE*		in;
 	FILE*		sol;
-	
+
 	in = fopen("i", "r");
 	if (in == NULL)
 		return;
@@ -89,11 +89,11 @@ static void check(void)
 
 	for (i = 0; i < m; i += 1)
 		r = fscanf(in, "%lf", &b[i]);
-	
+
 	fclose(in);
 
 	z = intopt(m, n, a, b, c, x);
-	
+
 	sol = fopen("intopt.sol", "r");
 
 	if (sol == NULL)
@@ -106,6 +106,8 @@ static void check(void)
 	if (s != 1)
 		goto dealloc;
 
+	// printf("intopt returned %lf\t correct is %f\n", z, z_sol);
+
 	if ((isfinite(z) == 0) ^ (isfinite(z_sol) == 0)) {
 		fail = 1;
 		make_score();
@@ -117,7 +119,7 @@ static void check(void)
 		fail = 1;
 		make_score();
 	}
-	
+
 dealloc:
 	for (i = 0; i < n+m; i += 1)
 		free(a[i]);
@@ -161,7 +163,7 @@ static void eval(int n)
 	char		dir[10];
 
 	sprintf(dir, "%d", n);
-	
+
 	cd(dir);
 	search();
 }
@@ -231,7 +233,7 @@ int main(int argc, char** argv)
 			usage();
 		}
 	}
-					
+
 	alarm(test_time);
 
 	cd("test");

@@ -4,7 +4,7 @@
 #include "intopt.h"
 
 //task 9
-double** make_matrix(int m, int n) {
+double** make_matrix_2(int m, int n) {
 	double** a;
 	a = calloc(m, sizeof(double*)); // obs '*'
 	// a = calloc(m, sizeof(double*)-5);
@@ -39,7 +39,7 @@ void print_matrix(double** a, int m, int n){
 	}
 }
 
-void free_matrix(double** a, int m) {
+void free_matrix_2(double** a, int m) {
 	for (int i = 0; i < m; i++){
 		free(a[i]);
 	}
@@ -63,7 +63,7 @@ int main(void)
 		scanf("%lf", &c[i]);
 
 	// a matrix
-	a = make_matrix(m, n);
+	a = make_matrix_2(m, n);
 	for (int i = 0; i < m; i++) {
 		for (int j = 0; j < n; j++) {
 			scanf("%lf", &a[i][j]);
@@ -86,7 +86,7 @@ int main(void)
 
 	free(x);
 
-	free_matrix(a,m);
+	free_matrix_2(a,m);
 	free(b);
 	free(c);
 }

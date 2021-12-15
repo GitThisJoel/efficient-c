@@ -400,6 +400,7 @@ double xsimplex(int m, int n, double **a, double *b, double *c, double *x, doubl
 
 	if (!initial(&s, m, n, a, b, c, x, y, var)) {
 		free(s.var);
+		// printf("returning NAN from xsimplex\n");
 		return NAN;
 	}
 
@@ -443,10 +444,9 @@ double xsimplex(int m, int n, double **a, double *b, double *c, double *x, doubl
 int initial(simplex_t *s, int m, int n, double **a, double *b, double *c, double *x, double y, int *var) {
 	int i, j, k;
 	double w;
-
 	k = init(s, m, n, a, b, c, x, y, var);
 
-	if (b[k] >= 0)
+	if (s->b[k] >= 0)
 		return 1;
 	prepare(s, k);
 	n = s->n;
@@ -456,6 +456,9 @@ int initial(simplex_t *s, int m, int n, double **a, double *b, double *c, double
 			if (fabs(s->x[i]) > EPSILON) {
 				free(s->x);
 				free(s->c);
+				//printf("returning 0 from initial\n");
+				// printf("returning after %d/%d iterations\n", i, n+m-1);
+				// printf("current element is %lf\n", s->x[i]);
 				return 0;
 			} else
 				break;
