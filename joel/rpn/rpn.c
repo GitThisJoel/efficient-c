@@ -1,116 +1,58 @@
 #include <stdio.h>
-#include <stdlib.h>
 #include <ctype.h>
 #define N (10)
-
-void read_to_end(char c) {
-	while(c != '\n')
-		c = getchar();
-}
-
-int stack[N];
-int calc_line(int line_nbr) {
-	int on_stack = 0;
-	char c;
-	int n;
-	while(1) {
-
-		// if c isdigit => add to stack
-		// if c is operator => take the top two numbers on stack
-		// if c is \n => print out number if only one on stack else error
-		// if c is undefined => print error
-
-		c = getchar();
+#define b break
+#define g getchar()
+int s[N], l = 1, o = 0, n, t, c;
+int main() {
+	for(;;) {
+		c = g;
 		if (isdigit(c)) {
 			n = 0;
 			while(isdigit(c))  {
 				n = (n*10) + (c - '0');
-				c = getchar();
+				c = g;
 			}
-			if (on_stack < N) {
-				stack[on_stack] = n;
-				on_stack++;
-			} else {
-				printf("line %d: error at %d\n", line_nbr, n);
-				read_to_end(c);
-				return 1;
+			if (o == N) {
+				c = n + '0';
+				goto e;
 			}
+			s[o++] = n;
 		}
-
-		if (feof(stdin)) {
-			return -1;
-		} else if (c == '\n'){
-			if (on_stack == 1)
-				printf("line %d: %d\n", line_nbr, stack[on_stack-1]);
-			else
-				printf("line %d: error at \\n\n", line_nbr);
-			return 1;
-		} else {
+		if (c == EOF)
+			b;
+		if (o>1 && (c=='+' || c=='-' || c=='*' || c=='/')) {
+			n = s[o-2]; t = s[o-1];
 			switch (c) {
 			case '+':
-				if (on_stack>=2) {
-					stack[on_stack-2] = stack[on_stack-2]+stack[on_stack-1];
-					on_stack--;
-				} else {
-					printf("line %d: error at %c\n", line_nbr, c);
-					read_to_end(c);
-					return 1;
-				}
-				break;
+				n += t; b;
 			case '-':
-				if (on_stack>=2) {
-					stack[on_stack-2] = stack[on_stack-2]-stack[on_stack-1];
-					on_stack--;
-				} else {
-					printf("line %d: error at %c\n", line_nbr, c);
-					read_to_end(c);
-					return 1;
-				}
-				break;
+				n -= t; b;
 			case '*':
-				if (on_stack>=2) {
-					stack[on_stack-2] = stack[on_stack-2]*stack[on_stack-1];
-					on_stack--;
-				} else {
-					printf("line %d: error at %c\n", line_nbr, c);
-					read_to_end(c);
-					return 1;
-				}
-				break;
+				n *= t; b;
 			case '/':
-				if (on_stack>=2) {
-					if (stack[on_stack-1] != 0) {
-						stack[on_stack-2] = stack[on_stack-2]/stack[on_stack-1];
-						on_stack--;
-					} else {
-						printf("line %d: error at %c\n", line_nbr, c);
-						read_to_end(c);
-						return 1;
-					}
-				} else {
-					printf("line %d: error at %c\n", line_nbr, c);
-					read_to_end(c);
-					return 1;
-				}
-				break;
-			case ' ':
-				break;
-			default:
-				printf("line %d: error at %c\n", line_nbr, c);
-				read_to_end(c);
-				return 1;
+				if(!t)
+					goto e;
+				n /= t;
 			}
+			s[--o-1] = n;
+		} else {
+			if (!(c-' '))
+				continue;
+			switch (c) {
+			case '\n':
+				if (o == 1)
+					printf("line %d: %d\n", l, s[o-1]);
+				else
+					printf("line %d: error at \\n\n", l);
+				b;
+			default:
+e:
+				printf("line %d: error at %c\n", l, c);
+				while(c != '\n')
+					c = g;
+			}
+			o = 0; l++;
 		}
-	//for(int i = 0; i < on_stack; i++)
-      	//	printf(" %d", stack[i]);
-	//printf("\n");
 	}
-}
-
-int main(void)
-{
-	int line_nbr = 1;
-	while(calc_line(line_nbr) > 0)
-		line_nbr++;
-	return 0;
 }
