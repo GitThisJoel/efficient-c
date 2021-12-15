@@ -94,11 +94,8 @@ void free_node_t(node_t *p);
 
 void set_rm_below_z(set_t *set, double z) {
 	list_t *p, *prev, *next;
-	printf("set->first is %p\n", set->first);
-		if (set->first == NULL){
-			printf("'t'was NULL\n");
-			return;
-		}
+	if (set->first == NULL)
+		return;
 
 	while (set->first->elem->z < z) {
 		p = set->first;
