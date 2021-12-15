@@ -93,32 +93,7 @@ int set_size(set_t *set) {
 void free_node_t(node_t *p);
 
 void set_rm_below_z(set_t *set, double z) {
-	list_t *p, *prev, *next;
-	if (set->first == NULL)
-		return;
 
-	while (set->first->elem->z < z) {
-		p = set->first;
-		set->first = p->next;
-		//free_node_t(p->elem);
-		//free(p);
-		if (set->first == NULL)
-			return;
-	}
-
-	prev = set->first;
-	p = prev->next;
-	while (p != NULL) {
-		next = p->next;
-		if (p->elem->z < z) {
-			prev->next = p->next;
-			// free_node_t(p->elem);
-			// free(p);
-		} else {
-			prev = p;
-		}
-		p = next;
-	}
 }
 
 void free_node_t(node_t *p) {
@@ -266,11 +241,44 @@ int integer(node_t *p) {
 void bound(node_t *p, set_t *h, double *zp, double *x) {
 	if (p == NULL)
 		return;
-	if (p->z > *zp) {
+
+	if (p->z > *zp)
+	{
 		*zp = p->z;
 		memcpy(x, p->x, sizeof(double) * p->n);
 		/* remove and delete all nodes q in h with q.z < p.z */
-		set_rm_below_z(h, p->z);
+		//set_rm_below_z(h, p->z);
+
+		list_t *q, *prev, *next;
+		if (h->first == NULL)
+			return;
+
+		while (h->first->elem->z < p->z)
+		{
+			q = h->first;
+			h->first = q->next;
+			//free_node_t(q->elem);
+			//free(q);
+			if (h->first == NULL)
+				return;
+		}
+
+		prev = h->first;
+		q = prev->next;
+		while (q != NULL)
+		{
+			next = q->next;
+			if (q->elem->z < p->z)
+			{
+				prev->next = q->next;
+				// free_node_t(q->elem);
+				// free(q);
+			} else
+			{
+				prev = q;
+			}
+			q = next;
+		}
 	}
 }
 
@@ -456,7 +464,7 @@ int initial(simplex_t *s, int m, int n, double **a, double *b, double *c, double
 			if (fabs(s->x[i]) > EPSILON) {
 				free(s->x);
 				free(s->c);
-				//printf("returning 0 from initial\n");
+				// printf("returning 0 from initial\n");
 				// printf("returning after %d/%d iterations\n", i, n+m-1);
 				// printf("current element is %lf\n", s->x[i]);
 				return 0;
@@ -465,7 +473,7 @@ int initial(simplex_t *s, int m, int n, double **a, double *b, double *c, double
 		}
 	}
 	if (i >= n) {
-		for (j = 0, k = 0; k < n; k++) {
+		for (j = k = 0; k < n; k++) {
 			if (fabs(s->a[i-n][k]) > fabs(s->a[i-n][j])) {
 				j = k;
 			}
@@ -489,7 +497,7 @@ int initial(simplex_t *s, int m, int n, double **a, double *b, double *c, double
 	for (k = n - 1; k < n + m - 1; k++) {
 		s->var[k] = s->var[k + 1];
 	}
-	n = s->n = s->n - 1;
+	n = --s->n;
 	double *t = calloc(n, sizeof(double));
 
 	for (k = 0; k < n; k++) {
@@ -500,7 +508,7 @@ int initial(simplex_t *s, int m, int n, double **a, double *b, double *c, double
 				goto next_k;
 			}
 		}
-		for (j = 0; j < n; j++) {
+		for (j = 0; j < m; j++) {
 			if (s->var[n + j] == k)
 				break; /* x_k is at row j */
 		}
@@ -563,9 +571,8 @@ double intopt(int m, int n, double** a, double* b, double* c, double* x)
 	p->z = simplex(p->m, p->n, p->a, p->b, p->c, p->x, 0);
 	if (integer(p) || !isfinite(p->z)) {
 		z = p->z;
-		if (integer(p)) {
-			memcpy(x, p->x, sizeof(double));
-		}
+		if (integer(p))
+			memcpy(x, p->x, sizeof(double)  * p->n);
 		// free_node_t(p);
 		// free_set_t(h);
 		return z;
@@ -575,7 +582,12 @@ double intopt(int m, int n, double** a, double* b, double* c, double* x)
 		p = set_pop(h);
 		succ(p, h, m, n, a, b, c, p->h, 1, floor(p->xh), &z, x);
 		succ(p, h, m, n, a, b, c, p->h, -1, -ceil(p->xh), &z, x);
+
+		free(p->min);
+	        free(p->max);
+	        free(p);
 	}
+
 	// free_set_t(h);
 	if (z == -INFINITY) {
 		return NAN;
