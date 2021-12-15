@@ -2,6 +2,7 @@
 
 1. What is the difference between `a` and `b` below? What can you do with them and when is the memory
 for the arrays deallocated?
+
 ```
 int* f(int n)
 {
@@ -15,9 +16,48 @@ int* f(int n)
 >
 > `b` will allocate memory regardless if there is enough space or not, this can lead to it overwriting other parts of the code.
 
-2. todo
+2. Suppose you have a single-linked list `h`, the nodes have a field next, when `h` is empty, `h` is a null pointer, and you would like to write a function `f` to add a node `q` to the beginning of the list (so that the `h` in `g` below points to it), how would you call `f` in C (especially the arguments) and how could `f` be implemented? `f` should have two parameters `h` and `p` where `p` has type `node_t* p` and you should decide the type of the parameter `h`.
 
-3. todo
+```
+typedef struct node_t node_t;
+
+struct node_t {
+  node_t* next;
+  /* other declarations. */
+};
+
+void f(node_t *h, node_t *p) {
+  // h can be empty, then p->next = NULL
+  p->next = h;
+}
+
+double g(void)
+{
+  node_t* h;
+  node_t* q;
+  /* more code. */
+  f(h,q)
+}
+```
+
+3. Same as above but we would like to add `q` to the end of the list.
+
+```
+void f(node_t *h, node_t *p) {
+  if (h == NULL) {
+    h = p;
+    return;
+  }
+  node_t *prev;
+  while(h != NULL) {
+    prev = h;
+    h = h->next;
+  }
+  prev->next = p;
+}
+```
+TODO: is this correct?  
+
 
 4. Is this valid C and what does it mean?
 ```
@@ -25,6 +65,7 @@ struct {
     int a : 1;
 } s;
 ```
+
 > It is valid C code.
 > The colon ':' is a bit field and creates a sort of 'pointer' to a number of adjacent bits that can later be referenced and changed later.
 >
@@ -32,7 +73,18 @@ struct {
 
 5. todo
 
+
+14. What does `#undef` mean?
+
+> `#undef` removes the current definition of a definition, i.e. let say we have `#define a 10` with `#undef a` the definition of `a` cannot after that be used.
+
+15. What does #error mean?
+
+16. What does #ifndef mean?
+
+
 39. What is the difference between `a = b++` and `a = ++b`?
+
 > Post-increment `a = b++`
 >
 > `a` is assigned the value in `b` and then `b` is increased by 1.
@@ -42,6 +94,7 @@ struct {
 > The value in `b` is increased then it is assigned to `a`
 
 40. What is returned from the function below?
+
 ```
 #include <stdbool.h>
 int f() {
