@@ -96,19 +96,22 @@ void set_rm_below_z(set_t *set, double z) {
 	list_t *p, *prev, *next;
 	if (set->first == NULL)
 		return;
+
 	while (set->first->elem->z < z) {
 		p = set->first;
 		set->first = p->next;
-		free_node_t(p->elem);
-		free(p);
+		//free_node_t(p->elem);
+		//free(p);
 	}
+
 	prev = set->first;
 	p = prev->next;
 	while (p != NULL) {
 		next = p->next;
 		if (p->elem->z < z) {
-			free_node_t(p->elem);
-			free(p);
+			prev->next = p->next;
+			// free_node_t(p->elem);
+			// free(p);
 		} else {
 			prev = p;
 		}
@@ -135,6 +138,8 @@ double xsimplex(int m, int n, double **a, double *b, double *c, double *x, doubl
 int initial(simplex_t *s, int m, int n, double **a, double *b, double *c, double *x, double y, int *var);
 
 int init(simplex_t *s, int m, int n, double **a, double *b, double *c, double *x, double y, int *var);
+
+double simplex(int m, int n, double **a, double *b, double *c, double *x, double y);
 
 node_t *initial_node(int m, int n, double **a, double *b, double *c) {
 	node_t *p = calloc(1, sizeof(node_t));
@@ -282,19 +287,17 @@ int branch(node_t *q, double z) {
 				continue;
 			q->h = h;
 			q->xh = q->x[h];
-			for (int i = 0; i < q->m + 1; i++)
-				free(q->a[i]);
-			free(q->a);
-			free(q->b);
-			free(q->c);
-			free(q->x);
+			// for (int i = 0; i < q->m + 1; i++)
+			// 	free(q->a[i]);
+			// free(q->a);
+			// free(q->b);
+			// free(q->c);
+			// free(q->x);
 			return 1;
 		}
 	}
 	return 0;
 }
-
-int simplex(int m, int n, double **a, double *b, double *c, double *x, double y);
 
 void succ(node_t *p, set_t *h, int m, int n, double **a, double *b, double *c, int k, double ak, double bk, double *zp, double *x) {
 	node_t *q = extend(p, m, n, a, b, c, k, ak, bk);
@@ -312,7 +315,7 @@ void succ(node_t *p, set_t *h, int m, int n, double **a, double *b, double *c, i
 			return;
 		}
 	}
-	free_node_t(q);
+	//free_node_t(q);
 }
 
 int select_nonbasic(simplex_t *s) {
@@ -537,7 +540,7 @@ int init(simplex_t *s, int m, int n, double **a, double *b, double *c, double *x
 	return k;
 }
 
-int simplex(int m, int n, double **a, double *b, double *c, double *x, double y)
+double simplex(int m, int n, double **a, double *b, double *c, double *x, double y)
 {
 	return xsimplex(m, n, a, b, c, x, y, NULL, 0);
 }
@@ -558,8 +561,8 @@ double intopt(int m, int n, double** a, double* b, double* c, double* x)
 		if (integer(p)) {
 			memcpy(x, p->x, sizeof(double));
 		}
-		free_node_t(p);
-		free_set_t(h);
+		// free_node_t(p);
+		// free_set_t(h);
 		return z;
 	}
 	branch(p, z);
@@ -568,7 +571,7 @@ double intopt(int m, int n, double** a, double* b, double* c, double* x)
 		succ(p, h, m, n, a, b, c, p->h, 1, floor(p->xh), &z, x);
 		succ(p, h, m, n, a, b, c, p->h, -1, -ceil(p->xh), &z, x);
 	}
-	free_set_t(h);
+	// free_set_t(h);
 	if (z == -INFINITY) {
 		return NAN;
 	}
