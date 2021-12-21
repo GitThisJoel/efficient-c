@@ -77,7 +77,29 @@ struct {
 
 7. todo
 
-8. todo
+8. What is the purpose of rename registers in a superscalar processor?
+
+> The rename registers are used when data dependencies occur between instructions. When an instruction is waiting for another it can sometimes be solved by renaming a register to an unused one. See example below.
+
+```
+r1 := m[1024]
+r1 := r1 + 2
+m[1032] := r1
+r1 := m[2048] // r1 is waiting for r1 above
+r1 := r1 + 4
+m[2056] := r1
+```
+
+```
+r1 := m[1024]
+r1 := r1 + 2
+m[1032] := r1
+r2 := m[2048]
+r2 := r2 + 4
+m[2056] := r2
+```
+
+In the second code the last 3 lines can be ran in parallel with the first 3 lines, this is achieved by changing from `r1` to `r2` in the last 3.
 
 9. todo
 
@@ -111,17 +133,67 @@ struct {
 
 17. todo
 
-18. todo
+18. What does `##` mean?
 
-19. todo
+> Each argument passed to a macro is a token, sometimes it is wanted to paste arguments together then the paste macro `##` is used between two things to put together.
 
-20. todo
+```
+#define BUILD_FIELD(name) my_struct.field_##name
 
-21. todo
+BUILD_FIELD(field1) => my_struct.field_field1
+```
 
-22. todo
+19. What does `volatile` mean?
 
-23. todo
+> Indicates that the value might have been changed between accesses, even if it does not appear to be changed.
+
+> It can be used to tell the compiler not to optimize away a variable (e.g. in a while condition) because it do not seem to be changed.
+
+```
+#include <signal.h>
+volatile int x;
+void catch_ctrl_c(int sig) {// called when you hit CTRL−C.
+  x = 0; }
+
+int main() {
+  // below line will tell your computer to call the
+  // function catch_ctrl_c when you hit CTRL−C.
+  signal(SIGINT, catch_ctrl_c);
+  x = 1;
+
+  // when compiling with optimisation and without
+  // volatile , GCC thinks X cannot change!
+  while (x) ;
+  }
+```
+
+20. What does `restrict` mean?
+
+> It informs the compiler that two parameters can not point to the same memory area.
+
+TODO, more info??
+
+21. What does `continue` mean?
+
+> Skip the reset of the code and go to the next iteration.
+
+```
+for(int i = 0; i < 5; i++) {
+  if (i % 2 == 0)
+    continue; // every even number will not be printed below
+  printf("i is now = %d", i);
+}
+```
+
+22. What does `case` mean?
+
+> In a switch-case statement the `case` matches a specific value to the controlling expression in the `switch`. \
+> The case value must be a integer or character constant. \
+> The case statement can only be used inside the switch statement.
+
+23. What does `default` mean?
+
+>  In a switch-case statement, if none of the values in the cases matches the controlling expression, the statement will go to `default`.
 
 24. todo
 
@@ -247,3 +319,5 @@ int f() {
 76. todo
 
 77. todo
+
+const - read only
