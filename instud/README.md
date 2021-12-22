@@ -215,15 +215,54 @@ for(int i = 0; i < 5; i++) {
 
 33. todo
 
-34. todo
+34. What does the operator `~` do?
 
-35. todo
+> Performs bitwise NOT on a variable.
 
-36. todo
+```
+0101 1101 //  original
+1010 0010 // ~original
+```
 
-37. todo
+35. What does the operator `&` do?
 
-38. todo
+> Performs bitwise AND between two variable.
+
+```
+A = 0011 1100
+B = 0000 1101
+
+(A & B) = 0000 1100
+```
+
+36. What does the operator `|` do?
+
+> Performs bitwise OR between two variable.
+
+```
+A = 0011 1100
+B = 0000 1101
+
+(A | B) = 0011 1101
+```
+
+37. What does the operator `>>` do?
+
+> Binary right shift. Moves a binary number certain number of steps.
+
+```
+A = 0011 1100
+A >> 2 = 0000 1111
+```
+
+38. What does the operator `<<` do?
+
+> Binary left shift.
+
+```
+A = 0011 1100
+A << 2 = 1111 0000
+```
 
 39. What is the difference between `a = b++` and `a = ++b`?
 
