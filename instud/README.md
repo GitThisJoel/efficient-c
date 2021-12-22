@@ -285,15 +285,37 @@ int f() {
 ```
 > The value returned for the function `f` is 2. The type `bool` is stored in 1 byte. Only 0 is interpreted as `false` when using `if`.  
 
-41. todo
+41. What is a compound literal?
 
-42. todo
+> It is simply an anonymous variable initialized using special syntax, can be used to assign e.g. structs or literal types. Since the compound is a normal object the address of it can be used. \
+See more in examples below and in `41.c`.
 
-43. todo
+```
+void print(point_t*); // some print function
 
-44. todo
+// creating structs
+typedef struct {
+    double x;
+    double y;
+} point_t;
 
-45. todo
+point_t p1 = (point_t) { 1.5, 2.4 };
+
+print(&(point_t) {.x = 1.2, .y = 6.7});
+print(&(point_t) {.y = 5.7, .x = 2.1});
+
+// literal types
+int* p = (int[]){ 1, 2, 3 };
+int a = (int){ 1 };
+```
+
+42. What is the type of `1`?
+
+43. What is the type of `1ULL`?
+
+44. What is the type of `1.0`?
+
+45. What is wrong with `099`?
 
 46. todo
 
