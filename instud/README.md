@@ -311,13 +311,25 @@ int a = (int){ 1 };
 
 42. What is the type of `1`?
 
+> int? unknown ?
+
 43. What is the type of `1ULL`?
+
+> ULL = Unsigned Long Long int
 
 44. What is the type of `1.0`?
 
+> Float or double?
+
 45. What is wrong with `099`?
 
-46. todo
+> C interprets the number as an 8-based number, in that particular base 8 and 9 are not allowed. \
+`error: invalid digit "9" in octal constant`
+
+46. What does `alloca` do?
+
+> Allocate memory that is automatically freed. Allocates memory in a stack frame of a caller, it is freed when the function that called `alloca` returns to its caller. \
+If the allocation causes a stack overflow, program behavior is undefined.
 
 47. todo
 
@@ -349,11 +361,55 @@ int a = (int){ 1 };
 
 61. todo
 
-62. todo
+62. Why does the code below, which tries to read a number from stdin, not work?
 
-63. todo
+```
+#incluce <stdio.h>
+#define ISDIGIT(c) ((c) >= ’0’ && (c) <= ’9’)
+int main()
+{
+  int num; // value of number.
+  int c; // a char.
 
-64. todo
+  num = 0;
+
+  while (ISDIGIT(c = getchar()))
+    num = 10 * num + c - ’0’;
+
+  printf("the number is %d\n", num);
+
+  return 0;
+}
+```
+
+> In the while statement a macro is used, this will be expanded to `ISDIGIT(c = getchar()) => ((c = getchar()) >= '0' && (c = getchar()) <= '9')` and such each iteration reads input from stdin twice! To verify this, the program is ran with the input `1234`, the only number that are read are `2` and `4`. If the input would have been `1a` the return value should be `1` but because `a` is not between `0` and `9` the program will not return anything.
+>
+> If the input is instead read in the while loop it is correct.
+> ```
+> // ...
+> c = getchar();
+> while (ISDIGIT(c)) {
+>   num = 10 * num + c - ’0’;
+>   c = getchar();  
+> }
+> //...
+> ```
+
+63. Why is the following code invalid?
+
+```
+void f()
+{
+  int a = 1;
+  a = 2 * ++a;
+}
+```
+
+>  The reason why this code is invalid is because the variable `a` is changed more than once between two `;` (sequence points), this in C is illegal. The correct this a needs to be increased by 1 in a line above this.
+
+64. What is the value of `-1 / 2U > 4`?
+
+> The value of this expression is `1`. This is because when mixing signed and unsigned integers the unsigned `-1` is interpreted as $(2^{32}-1)$ is `UMAX_INT` = $2^{32}-1$, and thus the division becomes $(2^{32}-1)$ $/$ $2$ $=$ $2147483647$ which is greater than $4$.  
 
 65. todo
 
@@ -363,19 +419,65 @@ int a = (int){ 1 };
 
 68. todo
 
-69. todo
+69. (nice) How can you measure how many times each source code line is executed? Do you need to compile the program with some special flag and why in that case?
+
+> You can use the coverage testing tool `gcov` (only wroks with `GCC`). it can  be usesd to:
+ - how often each line of code executes
+ - what lines of code actaully executed
+ - how much computing time each selection of code uses.
+>
+> To use this program you have to compile you code with `GCC` and the flag `--coverage`, which is synonym for `-fprofile-arcs -ftest-coverge`.
+- `-fprofile-arcs`: generates the information indicating how many times each branch of your program is taken, i.e. it generates additional data relative to its execution. The information is stored into a `.gcda` file.
+- `-ftest-coverge`: creates a file that contains control flow information, which `gcov` uses to create a human readable `.gcov` file. To make this file the flag uses the information created by `-fprofile-arcs` and generates a `.gcno` file. \
+Example of usage:
+
+```
+gcc -fprofile-arcs -ftest-coverage file_name.c
+```
 
 70. todo
 
-71. todo
+
+71. What is valgrind and what can it do for you?
+
+> Valgrind is collection of tools for debugging and profiling programs. It can e.g. help finding memory leaks.
 
 72. todo
 
 73. todo
 
-74. todo
+74. Why is the following code suboptimal and what can you do about it? How will your modification affect the program execution?
 
-75. todo
+```
+#define N (1000)
+double a[N][N], b[N][N], c[N][N];
+void matmul(void)
+{
+  size_t i, j, k;
+  for (i = 0; i < N; i += 1) {
+    for (j = 0; j < N; j += 1) {
+      a[i][j] = 0;
+      for (k = 0; k < N; k += 1)
+        a[i][j] += b[i][k] * c[k][j];
+    }
+  }
+}
+```
+
+> When accessing memory like this in a iterable type we want to make as small jumps as possible. In the case above, it jumps row instead of columns. This is bad because when allocating the memory the elements in rows are placed next to each other while the separate rows can be spread out. So when the last for-loop interates over `k` in c, it jumps between rows which is much more ineffective than iterating through a row.
+>
+> To make the code more efficient we change can write TODO
+
+75. Explain how the following function tests if the parameter a is a power of two. Assume a > 0, i.e., a = 2k for some k ≥ 0.
+
+```
+int is_power_of_two(unsigned int a)
+{
+return (a & (a-1)) == 0;
+}
+```
+
+> If `a` is a power of two, its binary form is `1` followed by `0`. Let say `a = 8 = 0b1000` which means that `a-1 = 7 = 0b0111`. If the bitwise AND operand is performed between the two the result is `0`. This only happens when `a` is a power of ´2´. A power of two is the only number where the previous is complete different.
 
 76. todo
 
