@@ -6,7 +6,7 @@
 3. code
 4. big test
 5. most of  the time was spent in pivot, especially when dividing.
-6. we can see how much of the time is spent in a certain fnction as well as number of calls to it etc. Can also see how much of the time is spent in a certain function and how much time we spend in subcalls of the functions.
+6. we can see how much of the time is spent in a certain function as well as number of calls to it etc. Can also see how much of the time is spent in a certain function and how much time we spend in subcalls of the functions.
 7. measures our code coverage, the numbers to the left indicate the number of times a line were executed. The option -b is branch probabilities, it shows the number of times a part of the code were executed / "jumped over".
 8. total instructions = I: 322223, D: 98049, LL: 4454, cache miss rate = I1: 0.52%, D1: 2.8% LL: 0.7%.
 
@@ -23,7 +23,7 @@
 10. first lfdx: cycle 51, last lfdx: 704, main returning: 711. Per cycle: ~7~ 6.
 11. scrollpv
 12. div takes a long time (~20 cycles), which makes efficient pipelining very hard.
-13. If multiple instructions are dependant on the same register but not data dependant between them the register is renamed to another unused one.
+13. If multiple instructions are dependent on the same register but not data dependent between them the register is renamed to another unused one.
 
 ### lab6
 4.
