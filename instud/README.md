@@ -71,9 +71,13 @@ struct {
 >
 >TODO: rewrite this, ask what happens if you have multiple types in the same struct
 
-5. todo
+5. Why do C compilers use a stack pointer in the machine code they produce? Is it always used in every function or do some functions not need it?
 
-6. todo
+TODO
+
+6. Does pipelining reduce the number of clock cycles to execute an instruction, or what is the purpose of pipelining?
+
+> Pipelining does not necessarily effect the number of clock cycles of an instruction, but rather it starts multiple instructions each clock cycle so that the program execution is done faster. The pipelining can do some smart optimizations like change name of register to make fewer dependencies between instructions.
 
 7. todo
 
@@ -103,11 +107,22 @@ In the second code the last 3 lines can be ran in parallel with the first 3 line
 
 9. todo
 
-10. todo
+10. What can a reasonable cache block size be?
 
-11. todo
+> `power.cs.lth.se` transferes 128 bytes at a time, that can be one reasonable cache block size.
 
-12. todo
+11. What is meant by cache associativity and why is that useful?
+
+> If a words is put in a row in a cache it implies that every row must be checked to see if the address matches. This is called a fully-associative cache.
+
+TODO: make this more clear
+
+12. Why are not fully associative data caches used?
+
+> They are expensive (time).
+
+TODO: more?
+
 
 13. todo
 
@@ -331,35 +346,146 @@ int a = (int){ 1 };
 > Allocate memory that is automatically freed. Allocates memory in a stack frame of a caller, it is freed when the function that called `alloca` returns to its caller. \
 If the allocation causes a stack overflow, program behavior is undefined.
 
-47. todo
+47. Can you add two pointers? If so, are there any restrictions?
 
-48. todo
+> Can't add two pointers, but the values they point to can be added (if the type allowes). One can however subtract two pointers. Then how many of the type the pointer is referring to that can be stored between the two. The two pointers need to be pointing to the same type.
 
-49. todo
+48. Can you subtract two pointers? If so, are there any restrictions?
 
-50. todo
+> Yes you can, see answer to previous question.
 
-51. todo
+TODO: restrictions?
 
-52. todo
+49. Can you add an integer and a pointer `(i+p)`, and what would that mean?
 
-53. todo
+> Yes you can, it would be like telling the pointer to move by `i` bytes. This `i` should be a multiple of the size (in bytes) of the type it is pointing two, otherwise bad things can occur.
+
+50. an you subtract an integer from a pointer `(p-i)`, and what would that mean?
+
+> Yes you can, it is the opposite of the answer in the previous answer.
+
+51. Can you subtract a pointer from an integer `(i-p)`, and what would that mean?
+
+> You cannot subtract a pointer from an integer.
+
+52. What is dangerous with using a variable length array with a size `n` where `n` is read from input. Why is that not such a big problem when using `malloc`?
+
+> When a VLA allocate memory there is no way of knowing if it succeeded or not. The VLA is located on the stack and if it allocates too much memory it can write over memory outside of the stack(?).
+>
+> If we instead would have used `malloc` it returns `NULL` if the allocation did not succeed.
+
+TODO: what does VLA do if too much memory is allocated?
+
+53. Why is alloca different (in addition to alloca not being ISO C) from using the VLA in the following loop?
+
+```
+void f(int n)
+{
+  int i;
+  int* p;
+  for (i = 0; i < n; i += 1) {
+    int a[i];
+    p = alloca(i * sizeof(int));
+    /* use a and p here... */
+  }
+}
+```
+
+> The difference between the two is that after the function `f` returns, the list `p` is automatically freed/deallocated. The memory used by the VLA `a` is not freed/deallocated until the program is done.
 
 54. todo
 
 55. todo
 
-56. todo
+56. Which three of the following lines always work, which may crash, and why?
 
-57. todo
+```
+int main()
+{
+  char* s = "hello";
+  char t[] = "hello";
+  s[0] = ’H’;
+  t[0] = ’H’;
+}
+```
 
-58. todo
+> The third row is the uncertain one. Because the type `char*` is of read only we cannot change a value in it. The type is called a string literal and is in most compilers stored in read only memory. The C standard says that a string literal have static storage duration, trying to modify the literal will cause undefined behavior. \
+TODO: correct?
+>
+> Side note, the list `t` is of size 6 even though the word "hello" is 5 characters long. This is done because the compiler automatically adds a `\0`
 
-59. todo
+57. Is returning a value `x` from `main` equivalent to calling `exit(x)` and why?
 
-60. todo
+> From `man return`:
+```
+return halts a currently running function.
+The exit status is set to STATUS if it is given.
+```
+> If the function is `main` there is no difference between the two key words.
 
-61. todo
+TODO: correct?
+
+58. Can you copy a struct with an assignment statement like this?
+
+```
+struct { int a; } s, t;
+void f()
+{
+  s = t;
+}
+```
+
+> Yes, the value of `a.a` is now the same as in `t.a`.
+
+59. Can you copy an array with an assignment statement like this?
+
+```
+int a[10];
+int b[10];
+void f()
+{
+  a = b;
+}
+```
+
+> No, instead use `memcpy`, see below.
+
+```
+void f()
+{
+  memcpy(b, a, 3*sizeof(int));
+}
+```
+
+60. What happens, if anything, to the elements of the array `a` in the statement in `f` ?
+
+```
+int a[10];
+int b[10];
+int* p = a;
+int* q = b;
+void f()
+{
+  p = q;
+}
+```
+
+> Both `a` and `b` are located on the stack and will thus be deleted once the program is done.
+>
+>The stack stores temporary variables created by a function, these variables are declared, stored and initialized in runtime. The stack is only temporary storage. When the computer task is done, the memory of the variables will be automatically deleted.
+>
+>  The stack section mostly contains methods, local variable, and reference variables.
+
+61. Why is the following code invalid C and would it, according to ISO C, help to use const?
+
+```
+int n = 10;
+int a[n];
+int main()
+{
+  return 0;
+}
+```
 
 62. Why does the code below, which tries to read a number from stdin, not work?
 
