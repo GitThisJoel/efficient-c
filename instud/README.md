@@ -79,7 +79,13 @@ TODO
 
 > Pipelining does not necessarily effect the number of clock cycles of an instruction, but rather it starts multiple instructions each clock cycle so that the program execution is done faster. The pipelining can do some smart optimizations like change name of register to make fewer dependencies between instructions.
 
-7. todo
+7. What is the purpose of a reorder buffer in a superscalar processor and what is it?
+
+> A reorder buffer is a FIFO queue that controls that instructions finish in the same order as they were dispatched.
+>
+> If one of the instructions in the queue-structure is cancelled, the following instructions must be updated so that none of them gets the value from the cancelled instruction.
+>
+> TODO: example of usage
 
 8. What is the purpose of rename registers in a superscalar processor?
 
@@ -103,9 +109,13 @@ r2 := r2 + 4
 m[2056] := r2
 ```
 
-In the second code the last 3 lines can be ran in parallel with the first 3 lines, this is achieved by changing from `r1` to `r2` in the last 3.
+> In the second code the last 3 lines can be ran in parallel with the first 3 lines, this is achieved by changing from `r1` to `r2` in the last 3.
 
-9. todo
+9. What is the purpose of branch prediction in a superscalar processor?
+
+> Branch prediction is when hardware fetches instructions from memory where it guesses the program will go. Usually it predicts the right but if not, i.e. misprediction is detected, all wrong path instructions must be marked as such.
+>
+> TODO: example of usage
 
 10. What can a reasonable cache block size be?
 
@@ -124,7 +134,30 @@ TODO: make this more clear
 TODO: more?
 
 
-13. todo
+13. Which two types of locality of references are exploited with caches to reduce the execution times of programs? Give examples of C code fragments in which each type of locality can be exploited.
+
+> Temporal locality: if a program has accessed a particular location *A* in memory, it is likely that is will accesses it again.
+> Examples of use:
+>  - The instructions in a loop are accessed next iteration as well.
+> - The loop index variable is usually accessed frequently.
+The stack space is often accessed again when a new function is called (since that space is reused).
+> - An object is typically accessed for a while and then the program is done with it.
+>
+> Spatial locality: is a program have accessed a word at memory location *A* it is likely that it will access a word a *A+1*.
+> Examples of use:
+> - The instructions are accessed one after the other — until there is a branch.
+> - Elements of an array are often accessed one after the other.
+> - Often several variables in an object is accessed and if these are put close together (by the programmer) then there will be spatial locality.
+>
+> Code example:
+
+```
+int* A;
+A = calloc(10, sizeof(int));
+for (int i = 0; i < 10; i++) { // i is accessed often!
+  A[i] = ...; // A+1 will be next!
+}
+```
 
 14. What does `#undef` mean?
 
@@ -147,6 +180,8 @@ TODO: more?
 ```
 
 17. todo
+
+> cannot really find an answer for this...
 
 18. What does `##` mean?
 
@@ -210,21 +245,118 @@ for(int i = 0; i < 5; i++) {
 
 >  In a switch-case statement, if none of the values in the cases matches the controlling expression, the statement will go to `default`.
 
-24. todo
+24. What does designated initializer mean? Give an example?
 
-25. todo
+> It means that elements in a compound literal can be given in random order as long as a index or struct member name is specified. See example below.
 
-26. todo
+```
+int a[6] = {[4] = 29, [2] = 15 }; // and
+int a[6] = {[4]29 , [2]15 };
 
-27. todo
+// is equivalent to
+int a[6] = {0 0 15 0 29 0};
 
-28. todo
+// not can also use
+int a[] = {[0 ... 9] = 1, [10 ... 99] = 2, [100] = 3 };
+```
+> *source: https://www.geeksforgeeks.org/designated-initializers-c/*
 
-29. todo
+> Elements in the last line will have a `1` between indices 0 and 9, a `2` between 10 and 99 and a `3` at 100.
+>
+> Another example with structs
+```
+typedef struct {
+  double x;
+  double y;
+} point_t;
 
-30. todo
+point_t p1, p2;
 
-31. todo
+p1 = (point_t) { 1.23, 4.56 };
+p2 = (point_t) { .y = 4.56, .x = 1.23 };
+
+// p1 and p2 have the same values in x and y
+```
+
+25. What does implementation-defined behavior mean? Give an example.  
+
+> In C the compiler and the standard library that comes with it is referred as the implementation. An implementation is free to make certain decisions about the behavior which it must follow consistently and document it. This is called implementation defined behavior. Portable programs should avoid using language constructs with implementation defined behavior. Some example of these are:
+> - The size and precision of various types.
+> - How bit-fields are layed out in memory.
+> - Whether right shift of an signed integer is arithmetic or logical.
+> - Whether the register keyword has any effect on performance
+
+26. What does unspecified behavior mean? Give an example.
+
+> Unspecified behavior lets the implementation decide the behavior and it does not have to document it cause it can vary "randomly" each compilation or implementations. This can occur of e.g. optimization, and should be avoided if it can affect observable behavior. Examples of unspecified behavior:
+> - The order of evaluation in `+` is unspecified:
+> ```
+> int a = 12, b = 13;
+> int f() {return a;};
+> int g() {return b;};
+> int main () { f() + g(); return 0; }
+> ```
+> - The order of evaluation of arguments in function calls.
+> - Whether two identical string literals share memory.
+> - Whether `setjmp` is a macro or identifier with external linkage; `&setjmp` is bad.
+
+27. What does undefined behavior mean? Give an example.
+
+> Even worse than implementation-defined or unspecified behavior is undefined behavior (ugly form of a bug). The implementation is permitted to do anything including:
+> - Terminating compilation with an error message.
+> - Continuing without understanding what happened.
+> - Continuing possibly with a warning message.
+>
+> Examples of when a undefined behvaior can occur is:
+> - A requirement which is not a Constraint is violated.
+> - An invalid pointer is dereferenced.
+> - An invalid pointer is dereferenced.
+> - A stack variable is used before it was given a value.
+> - Divide by zero.
+> - Array index out of range
+
+28. What does sequence point mean? Give an example.
+
+> A sequence point in C determines when a side affects have been performed, the most common sequence point in C is the semicolon. The most important side effect is the modification of variables. A variable may not be modified more than once between two sequence points. The following is invalid:
+> - `a = a = 1`
+> - `b = b++`
+> - `++c * c--`
+>
+> A variable may not be read after a modification before the next sequence point, thus `b = (a = 1) + a * 2` is also invalid.
+>
+> The code is invalid if the left operand of the add is evaluated first — which it may be since the evaluation order is unspecified.
+
+29. What does static storage duration mean?
+
+> Static storage duration us when a variable is not located on the stack but among global variables, it will then preserve its value across function calls.
+
+30. What does integer promotion mean?
+
+> When a type than does not lose any information when converted to an integer is converted to an integer. One example of this is when a `char` is printed as a integer to `stdout`.
+
+```
+char a = 30, b = 40, c = 10;
+char d = a * b / c;
+printf("%d", d); // integer promotion.
+```
+> *source: https://www.geeksforgeeks.org/integer-promotions-in-c/*
+
+31. What does the operator ? : do?
+
+> It is a if-else declaration one-liner.
+
+```
+int a = 10, b = 12;
+
+int max = a ? a > b : b;
+
+// same as
+int max;
+if (a > b)
+  max = a;
+else
+  max = b;
+```
 
 32. todo
 
