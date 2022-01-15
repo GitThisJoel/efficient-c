@@ -18,4 +18,4 @@ The course tresorit is [here](https://web.tresorit.com/l/NRNW0#kPzc5_cvrnVgTEE95
 |------------|---------------|--------------|
 | rpn        | 797           | 1100+        |
 | word       | 455           | 405          |
-| poly       | wip           | x            |
+| poly       | 1914  bad :(  | x            |
