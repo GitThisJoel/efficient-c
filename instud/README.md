@@ -537,9 +537,24 @@ void f(int n)
 
 > The difference between the two is that after the function `f` returns, the list `p` is automatically freed/deallocated. The memory used by the VLA `a` is not freed/deallocated until the program is done.
 
-54. todo
+54. Are there any restrictions on how inline may be used and if so why?
 
-55. todo
+> Inlining a function means copying the statements of a function into the calling function instead of doing the call.
+> There are restrictions when using inline functions using external linkage, they are:
+> - An inline function with external linkage may not define modifiable data with static storage duration.
+> - An inline function with external linkage may not reference any identifier with internal linkage.
+
+TODO: example of usage
+
+55. What do `setjmp` and `longjmp` do?
+
+> Nonlocal goto functions.
+>
+> `setjmp`: saves a current environment that into a variable for later use by `longjmp`. After the invocation the value returned is zero, but after a return from `longjmp`, the value returned is the value passed to `lonjmp` (the second argument).\
+> *source: https://www.tutorialspoint.com/c_standard_library/c_macro_setjmp.htm*
+>
+> `longjmp`: restores the environment saved by the most recent call to `setjmp`. The call to `longjmp` will result in another return from `setjmp`. \
+> *source: https://www.tutorialspoint.com/c_standard_library/c_function_longjmp.htm*
 
 56. Which three of the following lines always work, which may crash, and why?
 
