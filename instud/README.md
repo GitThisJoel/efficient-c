@@ -358,9 +358,21 @@ else
   max = b;
 ```
 
-32. todo
 
-33. todo
+32. How can you trigger a compile time error if your assumption about the size of an `int` does not hold? (hint: see previous question
+
+> One can do as the code below follows:
+
+```
+int number_of_bits = ...;
+int array[ sizeof(int) == number_of_bits ? 1 : -1 ];
+```
+
+> The compiler should complain if the number of elements is equal to -1, i.e. if our assumption of bit size of an `int`
+
+33. What does internal linkage mean?
+
+> A function with internal linkage, i.e. declared with static.
 
 34. What does the operator `~` do?
 
