@@ -12,9 +12,9 @@ int* f(int n)
 ```
 > The difference between `a` and `b` is where in the memory the value is **stored** at.
 >
-> `a` is allocated on the heap and only if memory is available it will allocate it, otherwise it will return `NULL`.
+> `a` is allocated on the heap and only if memory is available it will allocate it, otherwise it will return `NULL`. `a` is also a pointer.
 >
-> `b` will allocate memory regardless if there is enough space or not, this can lead to it overwriting other parts of the code.
+> `b` will allocate memory regardless if there is enough space or not, this can lead to it overwriting other parts of the code. `b` is not a pointer.
 
 2. Suppose you have a single-linked list `h`, the nodes have a field next, when `h` is empty, `h` is a null pointer, and you would like to write a function `f` to add a node `q` to the beginning of the list (so that the `h` in `g` below points to it), how would you call `f` in C (especially the arguments) and how could `f` be implemented? `f` should have two parameters `h` and `p` where `p` has type `node_t* p` and you should decide the type of the parameter `h`.
 
@@ -69,11 +69,13 @@ struct {
 > It is valid C code.
 > The colon ':' is a bit field and creates a sort of 'pointer' to a number of adjacent bits that can later be referenced and changed later.
 >
+> Because `a` is an int, i.e. signed, the value of a will either be `-1` or `1` when interpreted as an int.
+>
 >TODO: rewrite this, ask what happens if you have multiple types in the same struct
 
 5. Why do C compilers use a stack pointer in the machine code they produce? Is it always used in every function or do some functions not need it?
 
-TODO
+. todo
 
 6. Does pipelining reduce the number of clock cycles to execute an instruction, or what is the purpose of pipelining?
 
@@ -221,7 +223,7 @@ int main() {
 
 > It informs the compiler that two parameters can not point to the same memory area.
 
-TODO, more info??
+TODO, more info? Code example
 
 21. What does `continue` mean?
 
@@ -767,5 +769,8 @@ return (a & (a-1)) == 0;
 76. todo
 
 77. todo
+
+**Speculative execution** (F06): instructions can start execute before it is known that they really should, but they are not permitted to permanently modify (destroy) either memory or registers. Works on superscalar processor. 
+
 
 const - read only
