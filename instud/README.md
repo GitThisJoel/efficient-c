@@ -28,8 +28,16 @@ struct node_t {
 };
 
 void f(node_t *h, node_t *p) {
-  // h can be empty, then p->next = NULL
-  p->next = h;
+  node_t* temp; 
+  if (h == NULL) {
+    h->next = p;
+  }
+  else {
+    temp = h->next;
+    h->next = p;
+    p->next = temp;
+  }
+  return;
 }
 
 double g(void)
