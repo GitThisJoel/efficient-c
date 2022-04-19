@@ -18,6 +18,7 @@ int* f(int n)
 
 2. Suppose you have a single-linked list `h`, the nodes have a field next, when `h` is empty, `h` is a null pointer, and you would like to write a function `f` to add a node `q` to the beginning of the list (so that the `h` in `g` below points to it), how would you call `f` in C (especially the arguments) and how could `f` be implemented? `f` should have two parameters `h` and `p` where `p` has type `node_t* p` and you should decide the type of the parameter `h`.
 
+> Answer:
 ```
 typedef struct node_t node_t;
 
@@ -42,6 +43,7 @@ double g(void)
 
 3. Same as above but we would like to add `q` to the end of the list.
 
+> Answer:
 ```
 void f(node_t *h, node_t *p) {
   if (h == NULL) {
@@ -444,6 +446,7 @@ int f() {
       return p + 1;
 }
 ```
+
 > The value returned for the function `f` is 2. The type `bool` is stored in 1 byte. Only 0 is interpreted as `false` when using `if`.  
 
 41. What is a compound literal?
@@ -596,7 +599,7 @@ void f()
 }
 ```
 
-> Yes, the value of `a.a` is now the same as in `t.a`.
+> Yes, the value of `s.a` is now the same as in `t.a`.
 
 59. Can you copy an array with an assignment statement like this?
 
@@ -648,6 +651,8 @@ int main()
 }
 ```
 
+> TODO
+
 62. Why does the code below, which tries to read a number from stdin, not work?
 
 ```
@@ -698,13 +703,37 @@ void f()
 
 > The value of this expression is `1`. This is because when mixing signed and unsigned integers the unsigned `-1` is interpreted as $(2^{32}-1)$ is `UMAX_INT` = $2^{32}-1$, and thus the division becomes $(2^{32}-1)$ $/$ $2$ $=$ $2147483647$ which is greater than $4$.  
 
-65. todo
+65. Is the following program valid and what does it print?
+```
+#include <stdio.h>
+int main(void)
+{
+  signed int  a = 1;
+  signed int* p = &a;
+  unsigned int* q = (unsigned int*)p;
 
-66. todo
+  *q = 2;
+  
+  printf("a = %d\n", a);
+  
+  return 0;
+}
+```
 
-67. todo
+Would there be a difference if q would be a pointer to a signed short and the cast be to that type? Motivate your answer.
 
-68. todo
+> TODO
+
+66. Why is it a good idea to design a pipeline so that the different pipeline stages need approximately
+the same time to perform their work?
+
+67. The profiler operf can make measurements on programs compiled without any special flag (such as -pg for gprof) how can it then know which function takes time? Not details but the basic principle.
+
+> TODO
+
+68. Suppose you profile your program with operf, print the measurements with opreport, and find out that the function pow takes an unexpectedly large fraction of the execution time. How would you find out which other functions call pow and how many times?
+
+> TODO
 
 69. (nice) How can you measure how many times each source code line is executed? Do you need to compile the program with some special flag and why in that case?
 
@@ -722,16 +751,39 @@ Example of usage:
 gcc -fprofile-arcs -ftest-coverage file_name.c
 ```
 
-70. todo
+70. What can the Google sanitizer help you with?
 
+> TODO
 
 71. What is valgrind and what can it do for you?
 
 > Valgrind is collection of tools for debugging and profiling programs. It can e.g. help finding memory leaks.
 
-72. todo
+72. What is meant by reduced in RISC? Number of instructions or something else?
 
-73. todo
+> TODO
+
+73. What is bad in the code below (by bad is meant risk for undefined behavior or other problem but not the fact that the code is quite meaningless since it does not do anything useful).
+
+```
+void f(size_t n)
+{
+  int* p = calloc(n, sizeof(int));
+  int* q = p + 1;
+
+  p = realloc(p, 2 * n * sizeof(int));
+  
+  if (p == NULL)
+    return;
+  
+  q[0] = 1;
+  p[n] += 2;
+  
+  free(p);
+}
+```
+
+> TODO
 
 74. Why is the following code suboptimal and what can you do about it? How will your modification affect the program execution?
 
@@ -766,11 +818,30 @@ return (a & (a-1)) == 0;
 
 > If `a` is a power of two, its binary form is `1` followed by `0`. Let say `a = 8 = 0b1000` which means that `a-1 = 7 = 0b0111`. If the bitwise AND operand is performed between the two the result is `0`. This only happens when `a` is a power of ´2´. A power of two is the only number where the previous is complete different.
 
-76. todo
+76. What is meant by SIMD vectorization? Give an example of what you should think of when you try to help the compiler with this.
 
-77. todo
+> TODO
 
-**Speculative execution** (F06): instructions can start execute before it is known that they really should, but they are not permitted to permanently modify (destroy) either memory or registers. Works on superscalar processor. 
+77. In the code below, is it reasonable to expect that an optimizing ISO C compiler will produce machine code with only one multiplication? What would happen if you put back the assignment that is commented out? Would it affect your answer? Why or why not?
 
+```
+int     a;
+int     b;
+int     s;
+float*  p;
+int f()
+{
+  int c;
+  
+  c = a * b;
+  
+  // *p = c;
+  
+  if (s > 1)
+    c += a * b;
+  
+  return c;
+}
+```
 
-const - read only
+> TODO
