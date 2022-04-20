@@ -88,17 +88,23 @@ int main(void) {
 
 > Answer:
 ```
-void f(node_t *h, node_t *p) {
-  if (h == NULL) {
+node_t* f(node_t* h, node_t* p) 
+{
+  node_t* temp;
+  if (h == NULL)
     h = p;
-    return;
+  else
+  {
+    node_t* th = h;
+    node_t* prev;
+    while (th != NULL) {
+      prev = th;
+      th = th->next;
+    }
+    prev->next = p;
   }
-  node_t *prev;
-  while(h != NULL) {
-    prev = h;
-    h = h->next;
-  }
-  prev->next = p;
+
+  return h;
 }
 ```
 TODO: is this correct?  
