@@ -30,18 +30,13 @@ node_t* f(node_t* h, node_t* p)
 {
   node_t* temp;
   if (h == NULL)
-  {
-    h = malloc(sizeof(node_t));
-    h->a = 0;
-    h->next = p;
-  }
+    h = p;
   else
   {
-    temp = h->next;
-    h->next = p;
-    p->next = temp;
+    p->next = h;
+    h = p;
   }
-
+  
   return h;
 }
 
@@ -50,7 +45,7 @@ void g(void)
   node_t* h;
   node_t* q;
 
-  h = NULL;
+  // h = NULL;
   h = malloc(sizeof(node_t));
   h->a = 0;
   q = malloc(sizeof(node_t));
