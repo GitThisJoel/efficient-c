@@ -240,7 +240,7 @@ for (int i = 0; i < 10; i++) { // i is accessed often!
 
 17. What does `defined` mean? (yes, correct spelling — I do not refer to `#define`)
 
-> `define` is a special operator used in `#if` and `#elif` expressions to test whether a certain name is defined as a macro.
+> `defined` is a special operator used in `#if` and `#elif` expressions to test whether a certain name is defined as a macro.
 
 ```
 #if defined BUFSIZE && BUFSIZE >= 1024
@@ -632,7 +632,9 @@ int main()
 }
 ```
 
-> The third row is the uncertain one. Because the type `char*` is of read only we cannot change a value in it. The type is called a string literal and is in most compilers stored in read only memory. The C standard says that a string literal have static storage duration, trying to modify the literal will cause undefined behavior.
+> The third row is the uncertain one. Because the type `char*` is of read only we cannot change a value in it. 
+> The type is called a string literal and is in most compilers stored in read only memory. 
+> The C standard says that a string literal have static storage duration, trying to modify the literal will cause undefined behavior.
 > TODO: correct?
 >
 > Side note, the list `t` is of size 6 even though the word "hello" is 5 characters long. This is done because the compiler automatically adds a `\0`
@@ -839,7 +841,7 @@ gcc -fprofile-arcs -ftest-coverage file_name.c
 
 > The main focus is not to reduce the number of instruction but to make each instruction simpler and thus make it faster to run each instuction.
 > A program might even require more instruction because they are simpler. 
-> One instruction should only perform one function, e.g. read from  
+> One instruction should only perform one function, e.g. read from memory/registry
 
 73. What is bad in the code below (by bad is meant risk for undefined behavior or other problem but not the fact that the code is quite meaningless since it does not do anything useful).
 
@@ -959,5 +961,17 @@ int f()
 }
 ```
 
-> I think the compiler should only do one multiplication.
-> But usure about the other one.
+> A optimized compiler might do something like this:
+
+```
+r1 := m[&a]
+r2 := m[&b]
+r1 := r1 * r2
+m[&c] := r1
+
+(m[p] := r1)
+
+/* if s > 1 */
+r1 := r1 + r1
+m[&c] := r1
+```
