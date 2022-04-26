@@ -801,7 +801,8 @@ the same time to perform their work?
 
 67. The profiler operf can make measurements on programs compiled without any special flag (such as -pg for gprof) how can it then know which function takes time? Not details but the basic principle.
 
-> TODO
+> When opref is running it samples which function it is currently in.
+> This information is then used to create an understanding of how much time the program spent in each function.
 
 68. Suppose you profile your program with operf, print the measurements with opreport, and find out that the function pow takes an unexpectedly large fraction of the execution time. How would you find out which other functions call pow and how many times?
 
