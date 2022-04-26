@@ -238,9 +238,13 @@ for (int i = 0; i < 10; i++) { // i is accessed often!
 #endif
 ```
 
-17. todo
+17. What does `defined` mean? (yes, correct spelling — I do not refer to `#define`)
 
-> cannot really find an answer for this...
+> `define` is a special operator used in `#if` and `#elif` expressions to test whether a certain name is defined as a macro.
+
+```
+#if defined BUFSIZE && BUFSIZE >= 1024
+```
 
 18. What does `##` mean?
 
