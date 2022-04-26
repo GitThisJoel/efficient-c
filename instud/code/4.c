@@ -7,5 +7,8 @@ struct {
 } s;
 int main(void) {
 	printf("size of s: %ld\n", sizeof(s));
-	printf("size of int: %ld", sizeof(int));
+	printf("size of int: %ld\n", sizeof(int));
+
+	s.a = 0b1;
+	printf("s as an int: %d\n", s.a);
 }

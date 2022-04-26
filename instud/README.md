@@ -122,11 +122,11 @@ struct {
 >
 > Because `a` is an int, i.e. signed, the value of a will either be `-1` or `1` when interpreted as an int.
 >
->TODO: rewrite this, ask what happens if you have multiple types in the same struct
+> Worth noting is that even though the members of the struct only uses one bit, will the struct take up 1 byte in memory. 
 
 5. Why do C compilers use a stack pointer in the machine code they produce? Is it always used in every function or do some functions not need it?
 
-. todo
+> todo
 
 6. Does pipelining reduce the number of clock cycles to execute an instruction, or what is the purpose of pipelining?
 
@@ -219,6 +219,12 @@ for (int i = 0; i < 10; i++) { // i is accessed often!
 15. What does `#error` mean?
 
 > `#error` it's a preprocessor directive indicates an error. The compiler gives fatal error if the directive is found and skips further compilation process.
+> Can be used with `#ifndef` for example.
+```
+#ifndef __MATH_H  
+#error First include then compile  
+#else 
+```
 
 16. What does `#ifndef` mean?
 
@@ -401,7 +407,7 @@ printf("%d", d); // integer promotion.
 ```
 int a = 10, b = 12;
 
-int max = a ? a > b : b;
+int max = a > b ? a : b;
 
 // same as
 int max;
@@ -500,7 +506,7 @@ int f() {
 
 41. What is a compound literal?
 
-> It is simply an anonymous variable initialized using special syntax, can be used to assign e.g. structs or literal types. Since the compound is a normal object the address of it can be used. \
+> It is simply an anonymous variable initialized using special syntax, can be used to assign e.g. structs or literal types. Since the compound is a normal object the address of it can be used.
 See more in examples below and in `41.c`.
 
 ```
@@ -536,12 +542,12 @@ int a = (int){ 1 };
 
 45. What is wrong with `099`?
 
-> C interprets the number as an 8-based number, in that particular base 8 and 9 are not allowed. \
+> C interprets the number as an 8-based number, in that particular base 8 and 9 are not allowed.
 `error: invalid digit "9" in octal constant`
 
 46. What does `alloca` do?
 
-> Allocate memory that is automatically freed. Allocates memory in a stack frame of a caller, it is freed when the function that called `alloca` returns to its caller. \
+> Allocate memory that is automatically freed. Allocates memory in a stack frame of a caller, it is freed when the function that called `alloca` returns to its caller.
 If the allocation causes a stack overflow, program behavior is undefined.
 
 47. Can you add two pointers? If so, are there any restrictions?
@@ -551,8 +557,8 @@ If the allocation causes a stack overflow, program behavior is undefined.
 48. Can you subtract two pointers? If so, are there any restrictions?
 
 > Yes you can, see answer to previous question.
-
-TODO: restrictions?
+> 
+> The two pointers need to be pointing to the same type.
 
 49. Can you add an integer and a pointer `(i+p)`, and what would that mean?
 
@@ -622,8 +628,8 @@ int main()
 }
 ```
 
-> The third row is the uncertain one. Because the type `char*` is of read only we cannot change a value in it. The type is called a string literal and is in most compilers stored in read only memory. The C standard says that a string literal have static storage duration, trying to modify the literal will cause undefined behavior. \
-TODO: correct?
+> The third row is the uncertain one. Because the type `char*` is of read only we cannot change a value in it. The type is called a string literal and is in most compilers stored in read only memory. The C standard says that a string literal have static storage duration, trying to modify the literal will cause undefined behavior.
+> TODO: correct?
 >
 > Side note, the list `t` is of size 6 even though the word "hello" is 5 characters long. This is done because the compiler automatically adds a `\0`
 
@@ -700,7 +706,10 @@ int main()
 }
 ```
 
-> TODO
+> The code is invalid since we cannot have an static array which size is defined as a variable. 
+> Instead use `#define`, e.g. `#define n 10`.
+> If the array is created in the `main` function then the code would be valid.
+> In C++ it would be sufficient with `const`.
 
 62. Why does the code below, which tries to read a number from stdin, not work?
 
@@ -752,6 +761,7 @@ void f()
 
 > The value of this expression is `1`. This is because when mixing signed and unsigned integers the unsigned `-1` is interpreted as $(2^{32}-1)$ is `UMAX_INT` = $2^{32}-1$, and thus the division becomes $(2^{32}-1)$ $/$ $2$ $=$ $2147483647$ which is greater than $4$.  
 
+
 65. Is the following program valid and what does it print?
 ```
 #include <stdio.h>
@@ -769,12 +779,19 @@ int main(void)
 }
 ```
 
-Would there be a difference if q would be a pointer to a signed short and the cast be to that type? Motivate your answer.
+Would there be a difference if `q` would be a pointer to a signed short and the cast be to that type? Motivate your answer.
 
-> TODO
+> The program is valid and print `2`.
+> If `q` was a pointer to a signed short the output is still `2`.
+> To store the `2` in memory we need `0b10` (for both `signed` and `unsigned`), which is much shorter than both `short` and `int`.
+> Thus the `short 2` will get promoted to an integer since no information will be lost.
+> If we instread have `*q = -2` then the integer promotion would yield an output of `a = 65534`, since the bit to store if it is a negative number is the first bit in the `short`, when converting to a `int` it is some where in the middle. 
+
 
 66. Why is it a good idea to design a pipeline so that the different pipeline stages need approximately
 the same time to perform their work?
+
+> TODO
 
 67. The profiler operf can make measurements on programs compiled without any special flag (such as -pg for gprof) how can it then know which function takes time? Not details but the basic principle.
 
@@ -787,14 +804,14 @@ the same time to perform their work?
 69. (nice) How can you measure how many times each source code line is executed? Do you need to compile the program with some special flag and why in that case?
 
 > You can use the coverage testing tool `gcov` (only wroks with `GCC`). it can  be usesd to:
- - how often each line of code executes
- - what lines of code actaully executed
- - how much computing time each selection of code uses.
+> - how often each line of code executes
+> - what lines of code actaully executed
+> - how much computing time each selection of code uses.
 >
 > To use this program you have to compile you code with `GCC` and the flag `--coverage`, which is synonym for `-fprofile-arcs -ftest-coverge`.
-- `-fprofile-arcs`: generates the information indicating how many times each branch of your program is taken, i.e. it generates additional data relative to its execution. The information is stored into a `.gcda` file.
-- `-ftest-coverge`: creates a file that contains control flow information, which `gcov` uses to create a human readable `.gcov` file. To make this file the flag uses the information created by `-fprofile-arcs` and generates a `.gcno` file. \
-Example of usage:
+> `-fprofile-arcs`: generates the information indicating how many times each branch of your program is taken, i.e. it generates additional data relative to its execution. The information is stored into a `.gcda` file.
+> `-ftest-coverge`: creates a file that contains control flow information, which `gcov` uses to create a human readable `.gcov` file. To make this file the flag uses the information created by `-fprofile-arcs` and generates a `.gcno` file. \
+>Example of usage:
 
 ```
 gcc -fprofile-arcs -ftest-coverage file_name.c
@@ -802,7 +819,13 @@ gcc -fprofile-arcs -ftest-coverage file_name.c
 
 70. What can the Google sanitizer help you with?
 
-> TODO
+> The Google sanitizers can help you with:
+> Thread Sanitizer: detect data race, thread leak, deadlock
+> Address Sanitizer: detect buffer overflow, dangling pointer dereference
+> Leak Sanitizer: part of Address Sanitizer, detect memory leak
+> Undefined Behavior Sanitizer: detect integer overflow, float-number overflow
+> Memory Sanitizer: detect of uninitialized memory reads
+
 
 71. What is valgrind and what can it do for you?
 
@@ -810,7 +833,9 @@ gcc -fprofile-arcs -ftest-coverage file_name.c
 
 72. What is meant by reduced in RISC? Number of instructions or something else?
 
-> TODO
+> The main focus is not to reduce the number of instruction but to make each instruction simpler and thus make it faster to run each instuction.
+> A program might even require more instruction because they are simpler. 
+> One instruction should only perform one function, e.g. read from  
 
 73. What is bad in the code below (by bad is meant risk for undefined behavior or other problem but not the fact that the code is quite meaningless since it does not do anything useful).
 
@@ -832,7 +857,7 @@ void f(size_t n)
 }
 ```
 
-> TODO
+> If realloc do not succeed with allocating new memory for the expanded pointer it will move the pointer to another place in the memory and free the old one. If this case would happen, the pointer `q` is no longer pointing to the conent of `p` and thus when `q[0] = 1` we will get an error, probably a undefined behavior error.
 
 74. Why is the following code suboptimal and what can you do about it? How will your modification affect the program execution?
 
@@ -854,7 +879,25 @@ void matmul(void)
 
 > When accessing memory like this in a iterable type we want to make as small jumps as possible. In the case above, it jumps row instead of columns. This is bad because when allocating the memory the elements in rows are placed next to each other while the separate rows can be spread out. So when the last for-loop interates over `k` in c, it jumps between rows which is much more ineffective than iterating through a row.
 >
-> To make the code more efficient we change can write TODO
+> To make the code more efficient we change can write:
+```
+#define N (1000)
+double a[N][N], b[N][N], c[N][N];
+void matmul(void)
+{
+  size_t i, j, k;
+  double v = 0; 
+  for (i = 0; i < N; i += 1) {
+    for (j = 0; j < N; j += 1) {
+      a[i][j] = 0;
+      for (k = 0; k < N; k += 1)
+        a[i][j] += b[i][k] * c[j][k];
+    }
+  }
+}
+```
+
+> which still performs the matrix multiplication but in `a` the indexing is different.
 
 75. Explain how the following function tests if the parameter a is a power of two. Assume a > 0, i.e., a = 2k for some k ≥ 0.
 
@@ -869,7 +912,26 @@ return (a & (a-1)) == 0;
 
 76. What is meant by SIMD vectorization? Give an example of what you should think of when you try to help the compiler with this.
 
-> TODO
+> SIMD = single instruction multiple data.
+> SIMD uses data level parallelism (but not concurency).
+> There are simultaneous computations, each unit performs the exact same instruction but with different data.
+
+> A programmer should do the following to allow the program to be vectorized:
+> - Transform the code
+> - (Add compiler directives)
+> - (Program using vector intrinsics)
+
+> Write code so that few "large" jumps are needed when indexing the arrays (or other structures), e.g.
+
+```
+int a[M][N], b[M][N], c[M][N];
+for (int i = 0; i < N; i++)
+  for (int j = 0; j < M; j++)
+    a[j][i] = b[j][i] + c[j][i];
+```
+
+> results in a lot of jumping around since we loop over the rows instead of along columns. 
+> In this case, the loops for `i` and `j` could simply just change place for the program to be vectorized.
 
 77. In the code below, is it reasonable to expect that an optimizing ISO C compiler will produce machine code with only one multiplication? What would happen if you put back the assignment that is commented out? Would it affect your answer? Why or why not?
 
@@ -893,4 +955,5 @@ int f()
 }
 ```
 
-> TODO
+> I think the compiler should only do one multiplication.
+> But usure abount the other one.
