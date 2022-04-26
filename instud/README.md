@@ -107,7 +107,6 @@ node_t* f(node_t* h, node_t* p)
   return h;
 }
 ```
-TODO: is this correct?  
 
 
 4. Is this valid C and what does it mean?
@@ -126,7 +125,8 @@ struct {
 
 5. Why do C compilers use a stack pointer in the machine code they produce? Is it always used in every function or do some functions not need it?
 
-> todo
+> The stack pointer is used for pointing to the end of the stack, which is used to keep track of where a function can allocate its variables.
+> All functions need it, every function stores where the previous function is located at.
 
 6. Does pipelining reduce the number of clock cycles to execute an instruction, or what is the purpose of pipelining?
 
@@ -960,4 +960,4 @@ int f()
 ```
 
 > I think the compiler should only do one multiplication.
-> But usure abount the other one.
+> But usure about the other one.
