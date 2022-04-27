@@ -1,4 +1,3 @@
-
 #include <stdio.h>
 
 struct foo {int a; char b[2];} s;
