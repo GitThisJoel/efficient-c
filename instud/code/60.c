@@ -7,8 +7,10 @@ int* q = b;
 void f()
 {
 	printf("before: first elem in p %d\n", p[0]);
+	printf("before: first elem in a %d\n", a[0]);
 	p = q;
 	printf("after: first elem in p %d\n", p[0]);
+	printf("after: first elem in a %d\n", a[0]);
 }
 
 int main() {
