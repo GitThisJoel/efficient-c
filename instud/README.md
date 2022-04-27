@@ -700,6 +700,8 @@ void f()
 >The stack stores temporary variables created by a function, these variables are declared, stored and initialized in runtime. The stack is only temporary storage. When the computer task is done, the memory of the variables will be automatically deleted.
 >
 >  The stack section mostly contains methods, local variable, and reference variables.
+>
+> When `p = q;` is performed, where the pointer ´p´ is pointing to in memory is changed, not the values it where pointing to.
 
 61. Why is the following code invalid C and would it, according to ISO C, help to use const?
 
@@ -794,10 +796,9 @@ Would there be a difference if `q` would be a pointer to a signed short and the 
 > If we instread have `*q = -2` then the integer promotion would yield an output of `a = 65534`, since the bit to store if it is a negative number is the first bit in the `short`, when converting to a `int` it is some where in the middle. 
 
 
-66. Why is it a good idea to design a pipeline so that the different pipeline stages need approximately
-the same time to perform their work?
+66. Why is it a good idea to design a pipeline so that the different pipeline stages need approximately the same time to perform their work?
 
-> TODO
+> If the different pipeline stages take different amount of time then there would be stalls which means other resources (pipelines) is not fully utilized. 
 
 67. The profiler operf can make measurements on programs compiled without any special flag (such as -pg for gprof) how can it then know which function takes time? Not details but the basic principle.
 
@@ -806,7 +807,9 @@ the same time to perform their work?
 
 68. Suppose you profile your program with operf, print the measurements with opreport, and find out that the function pow takes an unexpectedly large fraction of the execution time. How would you find out which other functions call pow and how many times?
 
-> TODO
+> As in lab 4 we can use `gprof`, e.g. `gprof -T ./a.out`.
+> The output from this will include how much of the time is spent in a certain function as well as number of calls to it etc. 
+> Can also see how much of the time is spent in a certain function and how much time we spend in subcalls of the functions.
 
 69. (nice) How can you measure how many times each source code line is executed? Do you need to compile the program with some special flag and why in that case?
 
