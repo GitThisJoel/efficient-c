@@ -3,7 +3,7 @@
 1. What is the difference between `a` and `b` below? What can you do with them and when is the memory
 for the arrays deallocated?
 
-```
+```c
 int* f(int n)
 {
     int* a = calloc(n, sizeof(int));
@@ -19,7 +19,7 @@ int* f(int n)
 2. Suppose you have a single-linked list `h`, the nodes have a field next, when `h` is empty, `h` is a null pointer, and you would like to write a function `f` to add a node `q` to the beginning of the list (so that the `h` in `g` below points to it), how would you call `f` in C (especially the arguments) and how could `f` be implemented? `f` should have two parameters `h` and `p` where `p` has type `node_t* p` and you should decide the type of the parameter `h`.
 
 > Answer:
-```
+```c
 #include <stdio.h>
 #include <stdlib.h>
 typedef struct node_t node_t;
@@ -87,7 +87,7 @@ int main(void) {
 3. Same as above but we would like to add `q` to the end of the list.
 
 > Answer:
-```
+```c
 node_t* f(node_t* h, node_t* p) 
 {
   node_t* temp;
@@ -110,7 +110,7 @@ node_t* f(node_t* h, node_t* p)
 
 
 4. Is this valid C and what does it mean?
-```
+```c
 struct {
     int a : 1;
 } s;
@@ -204,7 +204,7 @@ The stack space is often accessed again when a new function is called (since tha
 >
 > Code example:
 
-```
+```c
 int* A;
 A = calloc(10, sizeof(int));
 for (int i = 0; i < 10; i++) { // i is accessed often!
@@ -220,7 +220,7 @@ for (int i = 0; i < 10; i++) { // i is accessed often!
 
 > `#error` it's a preprocessor directive indicates an error. The compiler gives fatal error if the directive is found and skips further compilation process.
 > Can be used with `#ifndef` for example.
-```
+```c
 #ifndef __MATH_H  
 #error First include then compile  
 #else 
@@ -230,7 +230,7 @@ for (int i = 0; i < 10; i++) { // i is accessed often!
 
 > Checks whether a token has been `#define` earlier in the file or in an included file. If not, it runs the code between it self and `#else`. If the token is defined then code between `#else` and `#endif`.
 
-```
+```c
 #ifndef <token>
 /* code if token is NOT defined*/
 #else
@@ -242,7 +242,7 @@ for (int i = 0; i < 10; i++) { // i is accessed often!
 
 > `defined` is a special operator used in `#if` and `#elif` expressions to test whether a certain name is defined as a macro.
 
-```
+```c
 #if defined BUFSIZE && BUFSIZE >= 1024
 ```
 
@@ -250,7 +250,7 @@ for (int i = 0; i < 10; i++) { // i is accessed often!
 
 > Each argument passed to a macro is a token, sometimes it is wanted to paste arguments together then the paste macro `##` is used between two things to put together.
 
-```
+```c
 #define BUILD_FIELD(name) my_struct.field_##name
 
 BUILD_FIELD(field1) => my_struct.field_field1
@@ -262,7 +262,7 @@ BUILD_FIELD(field1) => my_struct.field_field1
 
 > It can be used to tell the compiler not to optimize away a variable (e.g. in a while condition) because it do not seem to be changed.
 
-```
+```c
 #include <signal.h>
 volatile int x;
 void catch_ctrl_c(int sig) {// called when you hit CTRL−C.
@@ -290,7 +290,7 @@ TODO, more info? Code example
 
 > Skip the reset of the code and go to the next iteration.
 
-```
+```c
 for(int i = 0; i < 5; i++) {
   if (i % 2 == 0)
     continue; // every even number will not be printed below
@@ -312,7 +312,7 @@ for(int i = 0; i < 5; i++) {
 
 > It means that elements in a compound literal can be given in random order as long as a index or struct member name is specified. See example below.
 
-```
+```c
 int a[6] = {[4] = 29, [2] = 15 }; // and
 int a[6] = {[4]29 , [2]15 };
 
@@ -327,7 +327,7 @@ int a[] = {[0 ... 9] = 1, [10 ... 99] = 2, [100] = 3 };
 > Elements in the last line will have a `1` between indices 0 and 9, a `2` between 10 and 99 and a `3` at 100.
 >
 > Another example with structs
-```
+```c
 typedef struct {
   double x;
   double y;
@@ -353,12 +353,12 @@ p2 = (point_t) { .y = 4.56, .x = 1.23 };
 
 > Unspecified behavior lets the implementation decide the behavior and it does not have to document it cause it can vary "randomly" each compilation or implementations. This can occur of e.g. optimization, and should be avoided if it can affect observable behavior. Examples of unspecified behavior:
 > - The order of evaluation in `+` is unspecified:
-> ```
-> int a = 12, b = 13;
-> int f() {return a;};
-> int g() {return b;};
-> int main () { f() + g(); return 0; }
-> ```
+```c
+int a = 12, b = 13;
+int f() {return a;};
+int g() {return b;};
+int main () { f() + g(); return 0; }
+```
 > - The order of evaluation of arguments in function calls.
 > - Whether two identical string literals share memory.
 > - Whether `setjmp` is a macro or identifier with external linkage; `&setjmp` is bad.
@@ -397,7 +397,7 @@ p2 = (point_t) { .y = 4.56, .x = 1.23 };
 
 > When a type than does not lose any information when converted to an integer is converted to an integer. One example of this is when a `char` is printed as a integer to `stdout`.
 
-```
+```c
 char a = 30, b = 40, c = 10;
 char d = a * b / c;
 printf("%d", d); // integer promotion.
@@ -408,7 +408,7 @@ printf("%d", d); // integer promotion.
 
 > It is a if-else declaration one-liner.
 
-```
+```c
 int a = 10, b = 12;
 
 int max = a > b ? a : b;
@@ -426,7 +426,7 @@ else
 
 > One can do as the code below follows:
 
-```
+```c
 int number_of_bits = ...;
 int array[ sizeof(int) == number_of_bits ? 1 : -1 ];
 ```
@@ -441,7 +441,7 @@ int array[ sizeof(int) == number_of_bits ? 1 : -1 ];
 
 > Performs bitwise NOT on a variable.
 
-```
+```c
 0101 1101 //  original
 1010 0010 // ~original
 ```
@@ -450,7 +450,7 @@ int array[ sizeof(int) == number_of_bits ? 1 : -1 ];
 
 > Performs bitwise AND between two variable.
 
-```
+```c
 A = 0011 1100
 B = 0000 1101
 
@@ -461,7 +461,7 @@ B = 0000 1101
 
 > Performs bitwise OR between two variable.
 
-```
+```c
 A = 0011 1100
 B = 0000 1101
 
@@ -472,7 +472,7 @@ B = 0000 1101
 
 > Binary right shift. Moves a binary number certain number of steps.
 
-```
+```c
 A = 0011 1100
 A >> 2 = 0000 1111
 ```
@@ -481,7 +481,7 @@ A >> 2 = 0000 1111
 
 > Binary left shift.
 
-```
+```c
 A = 0011 1100
 A << 2 = 1111 0000
 ```
@@ -498,7 +498,7 @@ A << 2 = 1111 0000
 
 40. What is returned from the function below?
 
-```
+```c
 #include <stdbool.h>
 int f() {
       bool p = 1;
@@ -513,7 +513,7 @@ int f() {
 > It is simply an anonymous variable initialized using special syntax, can be used to assign e.g. structs or literal types. Since the compound is a normal object the address of it can be used.
 See more in examples below and in `41.c`.
 
-```
+```c
 void print(point_t*); // some print function
 
 // creating structs
@@ -586,7 +586,7 @@ TODO: what does VLA do if too much memory is allocated?
 
 53. Why is alloca different (in addition to alloca not being ISO C) from using the VLA in the following loop?
 
-```
+```c
 void f(int n)
 {
   int i;
@@ -622,7 +622,7 @@ TODO: example of usage
 
 56. Which three of the following lines always work, which may crash, and why?
 
-```
+```c
 int main()
 {
   char* s = "hello";
@@ -652,7 +652,7 @@ TODO: correct?
 
 58. Can you copy a struct with an assignment statement like this?
 
-```
+```c
 struct { int a; } s, t;
 void f()
 {
@@ -664,7 +664,7 @@ void f()
 
 59. Can you copy an array with an assignment statement like this?
 
-```
+```c
 int a[10];
 int b[10];
 void f()
@@ -675,7 +675,7 @@ void f()
 
 > No, instead use `memcpy`, see below.
 
-```
+```c
 void f()
 {
   memcpy(b, a, 3*sizeof(int));
@@ -684,7 +684,7 @@ void f()
 
 60. What happens, if anything, to the elements of the array `a` in the statement in `f` ?
 
-```
+```c
 int a[10];
 int b[10];
 int* p = a;
@@ -705,7 +705,7 @@ void f()
 
 61. Why is the following code invalid C and would it, according to ISO C, help to use const?
 
-```
+```c
 int n = 10;
 int a[n];
 int main()
@@ -721,7 +721,7 @@ int main()
 
 62. Why does the code below, which tries to read a number from stdin, not work?
 
-```
+```c
 #incluce <stdio.h>
 #define ISDIGIT(c) ((c) >= ’0’ && (c) <= ’9’)
 int main()
@@ -743,19 +743,19 @@ int main()
 > In the while statement a macro is used, this will be expanded to `ISDIGIT(c = getchar()) => ((c = getchar()) >= '0' && (c = getchar()) <= '9')` and such each iteration reads input from stdin twice! To verify this, the program is ran with the input `1234`, the only number that are read are `2` and `4`. If the input would have been `1a` the return value should be `1` but because `a` is not between `0` and `9` the program will not return anything.
 >
 > If the input is instead read in the while loop it is correct.
-> ```
-> // ...
-> c = getchar();
-> while (ISDIGIT(c)) {
->   num = 10 * num + c - ’0’;
->   c = getchar();  
-> }
-> //...
-> ```
+```c
+// ...
+c = getchar();
+while (ISDIGIT(c)) {
+  num = 10 * num + c - ’0’;
+  c = getchar();  
+}
+//...
+```
 
 63. Why is the following code invalid?
 
-```
+```c
 void f()
 {
   int a = 1;
@@ -771,7 +771,7 @@ void f()
 
 
 65. Is the following program valid and what does it print?
-```
+```c
 #include <stdio.h>
 int main(void)
 {
@@ -823,8 +823,8 @@ Would there be a difference if `q` would be a pointer to a signed short and the 
 > `-ftest-coverge`: creates a file that contains control flow information, which `gcov` uses to create a human readable `.gcov` file. To make this file the flag uses the information created by `-fprofile-arcs` and generates a `.gcno` file. \
 >Example of usage:
 
-```
-gcc -fprofile-arcs -ftest-coverage file_name.c
+```bash
+$ gcc -fprofile-arcs -ftest-coverage file_name.c
 ```
 
 70. What can the Google sanitizer help you with?
@@ -849,7 +849,7 @@ gcc -fprofile-arcs -ftest-coverage file_name.c
 
 73. What is bad in the code below (by bad is meant risk for undefined behavior or other problem but not the fact that the code is quite meaningless since it does not do anything useful).
 
-```
+```c
 void f(size_t n)
 {
   int* p = calloc(n, sizeof(int));
@@ -871,7 +871,7 @@ void f(size_t n)
 
 74. Why is the following code suboptimal and what can you do about it? How will your modification affect the program execution?
 
-```
+```c
 #define N (1000)
 double a[N][N], b[N][N], c[N][N];
 void matmul(void)
@@ -890,7 +890,7 @@ void matmul(void)
 > When accessing memory like this in a iterable type we want to make as small jumps as possible. In the case above, it jumps row instead of columns. This is bad because when allocating the memory the elements in rows are placed next to each other while the separate rows can be spread out. So when the last for-loop interates over `k` in c, it jumps between rows which is much more ineffective than iterating through a row.
 >
 > To make the code more efficient we change can write:
-```
+```c
 #define N (1000)
 double a[N][N], b[N][N], c[N][N];
 void matmul(void)
@@ -911,10 +911,10 @@ void matmul(void)
 
 75. Explain how the following function tests if the parameter a is a power of two. Assume a > 0, i.e., a = 2k for some k ≥ 0.
 
-```
+```c
 int is_power_of_two(unsigned int a)
 {
-return (a & (a-1)) == 0;
+  return (a & (a-1)) == 0;
 }
 ```
 
@@ -933,7 +933,7 @@ return (a & (a-1)) == 0;
 
 > Write code so that few "large" jumps are needed when indexing the arrays (or other structures), e.g.
 
-```
+```c
 int a[M][N], b[M][N], c[M][N];
 for (int i = 0; i < N; i++)
   for (int j = 0; j < M; j++)
@@ -945,7 +945,7 @@ for (int i = 0; i < N; i++)
 
 77. In the code below, is it reasonable to expect that an optimizing ISO C compiler will produce machine code with only one multiplication? What would happen if you put back the assignment that is commented out? Would it affect your answer? Why or why not?
 
-```
+```c
 int     a;
 int     b;
 int     s;
