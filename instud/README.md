@@ -830,11 +830,11 @@ $ gcc -fprofile-arcs -ftest-coverage file_name.c
 70. What can the Google sanitizer help you with?
 
 > The Google sanitizers can help you with:
-> Thread Sanitizer: detect data race, thread leak, deadlock
-> Address Sanitizer: detect buffer overflow, dangling pointer dereference
-> Leak Sanitizer: part of Address Sanitizer, detect memory leak
-> Undefined Behavior Sanitizer: detect integer overflow, float-number overflow
-> Memory Sanitizer: detect of uninitialized memory reads
+> - Thread Sanitizer: detect data race, thread leak, deadlock
+> - Address Sanitizer: detect buffer overflow, dangling pointer dereference
+> - Leak Sanitizer: part of Address Sanitizer, detect memory leak
+> - Undefined Behavior Sanitizer: detect integer overflow, float-number overflow
+> - Memory Sanitizer: detect of uninitialized memory reads
 
 
 71. What is valgrind and what can it do for you?
