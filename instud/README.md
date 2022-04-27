@@ -534,7 +534,7 @@ int a = (int){ 1 };
 
 42. What is the type of `1`?
 
-> int? unknown ?
+> int
 
 43. What is the type of `1ULL`?
 
@@ -542,7 +542,7 @@ int a = (int){ 1 };
 
 44. What is the type of `1.0`?
 
-> Float or double?
+> double
 
 45. What is wrong with `099`?
 
