@@ -126,7 +126,8 @@ struct {
 5. Why do C compilers use a stack pointer in the machine code they produce? Is it always used in every function or do some functions not need it?
 
 > The stack pointer is used for pointing to the end of the stack, which is used to keep track of where a function can allocate its variables.
-> All functions need it, every function stores where the previous function is located at.
+> All functions except an inline function needs it. 
+> An inline function "copies" the function into its callers instead of actually doing the call.
 
 6. Does pipelining reduce the number of clock cycles to execute an instruction, or what is the purpose of pipelining?
 
@@ -436,6 +437,9 @@ int array[ sizeof(int) == number_of_bits ? 1 : -1 ];
 33. What does internal linkage mean?
 
 > A function with internal linkage, i.e. declared with static.
+>
+> A translation unit refers to an implementation `(.c/.cpp)` file and all header `(.h/.hpp)` files it includes. 
+> If an object or function inside such a translation unit has internal linkage, then that specific symbol is only visible to the linker within that translation unit.
 
 34. What does the operator `~` do?
 
