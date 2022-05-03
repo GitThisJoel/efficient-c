@@ -6,6 +6,10 @@ lab1/p
 intopt/test
 intopt/score
 
+# Some specific files
+instud/notes.md
+
+
 # Prerequisites
 *.d
 
