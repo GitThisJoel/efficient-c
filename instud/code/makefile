@@ -1,5 +1,5 @@
 CC = gcc
-LDFLAGS	= -g -lm
+LDFLAGS	= -g -lm -O0
 
 main:
 	$(CC) $(LDFLAGS) $(PROGRAM)
